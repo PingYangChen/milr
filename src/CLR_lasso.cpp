@@ -21,40 +21,32 @@ arma::vec logit(arma::mat X, arma::vec beta){
 }
 
 // q is the expected value of the instance (Y) given that the label (Z) is 1
-arma::vec q(arma::vec p_Y, arma::vec ID){
-  vec q = p_Y;
+arma::vec q(arma::vec p_Y, arma::uvec ID){
   // p_bag is P(label of bag_i is 1) = 1-prod(1-p_ij)
-  vec ID_table = unique(ID); 
-  vec p_bag = ones<arma::vec>(ID_table.n_elem);
-  
+  uvec ID_table = unique(ID); 
+  vec p_bag = ones<vec>(ID_table.n_elem);
   // assuming that the bags(ID) are labeled from 1 to the number of bags and are sorted
-  for(uword i = 0; i < ID.size(); i++){
-    p_bag[ID[i] - 1] *= 1-p_Y[i];
-  }
-  p_bag = 1-p_bag;
+  for(uword i = 0; i < ID_table.size(); i++)
+    p_bag(ID_table(i)) = prod(1 - p_Y.elem(find(ID == ID_table(i))));
+  p_bag = 1 - p_bag;
   
-  for(uword j = 0; j < q.size(); j++){
-    if(p_Y[j] == 0) q[j] = 0;
-    else{
-      double tmp = p_bag[ID[j]-1];
-      if(tmp == 0){
-        q[j] = 1;
-      }
-      else{
-        q[j] = p_Y[j]/tmp;
-      }
-    }
-  }
+  vec q = p_Y;
+  q.elem(find(p_Y == 0)).zeros();
+  
+  uvec loc_nonzero_q = find(q > 0);
+  q.elem(loc_nonzero_q) /= p_bag.elem(ID.elem(loc_nonzero_q));
+  q.elem(find_nonfinite(q)).ones();
   return(q);
 }
 
 //[[Rcpp::export]]
-arma::vec CLR_lasso(const arma::vec& Z, const arma::mat& X, const arma::vec& ID, 
+arma::vec CLR_lasso(const arma::vec& Z, const arma::mat& X, const arma::vec& ID_dbl, 
                     const arma::vec& init_beta, double lambda, double alpha = 1,
                     double maxit = 500){
   double iter = 1.0;
   uword p = X.n_cols, n = X.n_rows;
-  
+  uvec ID = conv_to<uvec>::from(ID_dbl);
+  ID -= 1;
   double tol = std::pow(0.1, 5.0), epsilon = std::pow(0.1, 5.0), 
     diff = 1.0, W = 0.25;
   // use the upper bound 0.25 to approximate W = p(1-p)

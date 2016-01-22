@@ -15,7 +15,7 @@ logit <- function(X, beta) {
     .Call('milr_logit', PACKAGE = 'milr', X, beta)
 }
 
-CLR_lasso <- function(Z, X, ID, init_beta, lambda, alpha = 1, maxit = 500) {
-    .Call('milr_CLR_lasso', PACKAGE = 'milr', Z, X, ID, init_beta, lambda, alpha, maxit)
+CLR_lasso <- function(Z, X, ID_dbl, init_beta, lambda, alpha = 1, maxit = 500) {
+    .Call('milr_CLR_lasso', PACKAGE = 'milr', Z, X, ID_dbl, init_beta, lambda, alpha, maxit)
 }
 

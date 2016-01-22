@@ -19,19 +19,19 @@ BEGIN_RCPP
 END_RCPP
 }
 // CLR_lasso
-arma::vec CLR_lasso(const arma::vec& Z, const arma::mat& X, const arma::vec& ID, const arma::vec& init_beta, double lambda, double alpha, double maxit);
-RcppExport SEXP milr_CLR_lasso(SEXP ZSEXP, SEXP XSEXP, SEXP IDSEXP, SEXP init_betaSEXP, SEXP lambdaSEXP, SEXP alphaSEXP, SEXP maxitSEXP) {
+arma::vec CLR_lasso(const arma::vec& Z, const arma::mat& X, const arma::vec& ID_dbl, const arma::vec& init_beta, double lambda, double alpha, double maxit);
+RcppExport SEXP milr_CLR_lasso(SEXP ZSEXP, SEXP XSEXP, SEXP ID_dblSEXP, SEXP init_betaSEXP, SEXP lambdaSEXP, SEXP alphaSEXP, SEXP maxitSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< const arma::vec& >::type Z(ZSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type ID(IDSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type ID_dbl(ID_dblSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type init_beta(init_betaSEXP);
     Rcpp::traits::input_parameter< double >::type lambda(lambdaSEXP);
     Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
     Rcpp::traits::input_parameter< double >::type maxit(maxitSEXP);
-    __result = Rcpp::wrap(CLR_lasso(Z, X, ID, init_beta, lambda, alpha, maxit));
+    __result = Rcpp::wrap(CLR_lasso(Z, X, ID_dbl, init_beta, lambda, alpha, maxit));
     return __result;
 END_RCPP
 }

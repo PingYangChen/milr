@@ -18,10 +18,10 @@ before_install:
 #  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then Rscript -e 'library(devtools); library(methods); options(repos=c(CRAN="http://cran.rstudio.com")); devtools::install_github("jimhester/covr", build_vignettes = FALSE)'; fi
 
 r_binary_packages:
-  - reshape2
-  - data.table
-  - ggplot2
-  - dplyr
+  - numDeriv
+  - plyr
+  - magrittr
+  - purrr
   - testthat
 
 after_failure:

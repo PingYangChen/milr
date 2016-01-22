@@ -2,3 +2,10 @@
 .Rhistory
 .RData
 .Ruserdata
+*.o
+src/*.o-*
+*.so
+*.dll
+inst/doc
+*.Rds
+vignettes/*.R

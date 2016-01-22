@@ -1,0 +1,13 @@
+^.*\.Rproj$
+^\.Rproj\.user$
+^.Rprofile$
+^.Rhistory$
+^NEWS\.md$
+^cran-comments\.md$
+^README\.Rmd$
+^README\.md$
+^revdep$
+^README-.*\.png$
+^\.travis\.yml$
+^appveyor\.yml$
+^working_script.R$

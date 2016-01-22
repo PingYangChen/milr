@@ -19,6 +19,7 @@ coef.milr <- function(object){
 #' testData <- DGP(50, 3, runif(sample(5:21, 1), -5, 5))
 #' a <- milr(testData$Z, testData$X, testData$ID)
 #' coef(a)
+#' @importFrom dplyr summarize
 #' @export
 milr <- function(y, x, bag = NULL, lambda = 0, alpha = 1, maxit = 500) {
   init_beta <- glm(y~x-1)$coefficients

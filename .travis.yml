@@ -21,7 +21,6 @@ r_binary_packages:
   - numDeriv
   - plyr
   - magrittr
-  - purrr
   - testthat
 
 after_failure:

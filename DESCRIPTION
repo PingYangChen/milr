@@ -19,7 +19,8 @@ Imports:
     plyr (>= 1.8.3),
     dplyr (>= 0.4.3),
     purrr (>= 0.2.0),
-    magrittr (>= 1.5)
+    magrittr (>= 1.5),
+    numDeriv
 LinkingTo:
     Rcpp,
     RcppArmadillo
@@ -30,6 +31,7 @@ License: MIT + file LICENSE
 Collate:
     'RcppExports.R'
     'data-MUSK1.R'
+    'CNS_EM.R'
     'milr.R'
     'DGP.R'
     'milr_main.R'

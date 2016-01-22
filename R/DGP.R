@@ -9,6 +9,7 @@
 #' @examples
 #' data <- DGP(50, 3, runif(sample(5:21, 1), -5, 5))
 #' @importFrom dplyr data_frame group_by mutate
+#' @importFrom purrr map
 #' @export
 DGP <- function(n, m, beta){
   assert_that(length(n) == 1, is.numeric(n), is.finite(n), n > 0, abs(n - floor(n)) < 1e-6)

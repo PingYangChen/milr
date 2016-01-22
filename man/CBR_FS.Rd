@@ -2,7 +2,7 @@
 % Please edit documentation in R/CNS_EM.R
 \name{CBR_FS}
 \alias{CBR_FS}
-\title{CBR_FS function:}
+\title{CBR_FS function}
 \usage{
 CBR_FS(Z, X, ID)
 }

@@ -1,6 +1,4 @@
-#' @importFrom numDeriv grad hessian
-
-#' CBR function:
+#' CBR function
 #'
 #' description here
 #' 
@@ -12,6 +10,7 @@
 #' testData <- DGP(50, 3, runif(sample(5:21, 1), -5, 5))
 #' a <- milr(testData$Z, testData$X, testData$ID)
 #' coef(a)
+#' @importFrom numDeriv grad hessian
 #' @export
 CBR <- function(Z, X, ID){
   loglik <- function(b){
@@ -51,7 +50,7 @@ CBR <- function(Z, X, ID){
   return(list(L.b=temp.L, L.p=temp.Lp, Lc.b=temp, Lc.p=Lc.p))
 }
 
-#' CBR_FS function:
+#' CBR_FS function
 #'
 #' description here
 #' 

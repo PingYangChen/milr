@@ -2,6 +2,7 @@
 % Please edit documentation in R/CNS_EM.R
 \name{CBR}
 \alias{CBR}
+\title{CBR function}
 \usage{
 CBR(Z, X, ID)
 }
@@ -14,6 +15,9 @@ CBR(Z, X, ID)
 }
 \value{
 An list involves coefficients and fitted values.
+}
+\description{
+description here
 }
 \examples{
 testData <- DGP(50, 3, runif(sample(5:21, 1), -5, 5))

@@ -29,6 +29,7 @@ LazyData: yes
 License: MIT + file LICENSE
 Collate:
     'RcppExports.R'
+    'data-MUSK1.R'
     'milr.R'
     'DGP.R'
     'milr_main.R'

@@ -12,28 +12,23 @@
 #' @export
 DGP <- function(n, m, beta){
   assert_that(length(n) == 1, is.numeric(n), is.finite(n), n > 0, abs(n - floor(n)) < 1e-6)
-  assert_that(length(m) == 1, is.numeric(m), is.finite(m), m > 0, abs(m - floor(m)) < 1e-6)
+  assert_that(all(is.numeric(m)), all(is.finite(m)), all(m > 0), all(abs(m - floor(m)) < 1e-6))
   assert_that(all(is.numeric(beta)), all(is.finite(beta)), n > 0)
   
   p <- length(beta)
-  if(length(m) < n){
-    m <- rep(m,length=n)
-  }
-  X <- scale(matrix(rnorm(sum(m)*p),sum(m),p))
-  X[,1] <- 1
+  if (length(m) < n)
+    m <- rep(m, length = n)
+  X <- scale(matrix(rnorm(sum(m)*p),sum(m),p)) %>% 
+    matrix(nrow(.), ncol(.))  # remove attributes
+  X[ ,1] <- 1
   pr <- logit(X, beta)
-  # mu <- X %*% beta
-  # pr <- 1/(1+exp(-mu))
   Y <- rbinom(sum(m), 1, pr)
-  ID <- rep(1:n,m)
-  Z <- data_frame(Y=Y,ID=ID) %>%
-    group_by(ID) %>%
-    mutate(Z = ifelse(all(Y==0),0,1)) %>% .$Z
-  # ungroup() %>%
-  # select(Z) %>%
-  # as.matrix() %>%
-  # as.numeric()
-  if(all(Z==1)) Z[ID==sample(1:n,1)] <- 0
-  if(all(Z==0)) Z[ID==sample(1:n,1)] <- 1
-  return(list(Z=Z,X=X,ID=ID))
+  ID <- rep(1:n, m)
+  Z <- split(Y, ID) %>% map(~rep(any(.==1), length(.))) %>% 
+    unlist %>% as.integer
+  if(all(Z==1))
+    Z[ID==sample(1:n,1)] <- 0
+  if(all(Z==0))
+    Z[ID==sample(1:n,1)] <- 1
+  return(list(Z = Z, X = X, ID = ID))
 }

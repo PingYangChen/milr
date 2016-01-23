@@ -13,36 +13,27 @@
 #' @importFrom numDeriv grad hessian
 #' @export
 CBR <- function(Z, X, ID){
-  loglik <- function(b){
-    out <- 0
-    for(i in 1:n.d){
-      sel <- which(ID == d[i])
-      n.sel <- length(sel)
-      temp <- 1
-      for(j in 1:n.sel) temp <- temp*(1 - 1/(1+exp(-sum(X[sel[j],]*b)))) 	
-      pii <- 1 - temp
-      out <- out + Z[sel[1]]*log(pii) + (1-Z[sel[1]])*log(1-pii) 
-      #cat(i, out,"\n")
-    }
-    return(out)
+  logLik <- function(b){
+    pii <- split(as.data.frame(X), ID) %>% 
+      map(~1-prod(1-logit(as.matrix(.), b)))
+    return(map2_dbl(split(Z, ID) %>% map(unique), pii, 
+                    ~.x*log(.y)+(1-.x)*log(1-.y)) %>% sum)
   }
-  
-  d <- names(table(ID))
-  n.d <- length(d)
-  
-  out <- summary(glm(A$Z~A$X-1, family=binomial(link="logit")))$coefficients
+  out <- summary(glm(Z~X-1, family=binomial(link="logit")))$coefficients
   temp.Lp <- out[,4]
   temp.L <- out[,1]
   temp <- temp.L
   g <- grad(loglik, temp)
   H <- hessian(loglik, temp)
-  for(i in 1:20){
+  for(i in 1:20)
+  {
     temp.new <- temp - solve(H, g)
-    test <- temp.new - temp; test <- sum(test*test)
+    test <- crossprod(temp.new - temp)
     temp <- temp.new
     g <- grad(loglik, temp)
     H <- hessian(loglik, temp)
-    if(test < 10^(-6)) break
+    if(test < 10^(-6))
+      break
   }
   
   test <- -abs(temp/sqrt(-diag(solve(H))))

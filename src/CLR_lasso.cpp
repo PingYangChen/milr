@@ -17,7 +17,7 @@ using namespace arma;
 //' @export
 // [[Rcpp::export]]
 arma::vec logit(const arma::mat& X, const arma::vec& beta){
-  return pow(1 + exp(-X*beta), -1);
+  return pow(1.0 + exp(-X*beta), -1.0);
 }
 
 // q is the expected value of the instance (Y) given that the label (Z) is 1

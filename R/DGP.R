@@ -8,7 +8,6 @@
 #' @return An list involves coefficients and fitted values.
 #' @examples
 #' data <- DGP(50, 3, runif(sample(5:21, 1), -5, 5))
-#' @importFrom dplyr data_frame group_by mutate
 #' @importFrom purrr map
 #' @export
 DGP <- function(n, m, beta){

@@ -12,18 +12,9 @@ fitted.milr <- function(object, ...){
 
 #' @export
 #' @method predict milr
-
-predict <- function(bag, instance, beta, combining){
-  combining <- match.fun(combining)
-  p_instance <- logit(instance%*%beta)
-  #p_instance <- ifelse(logit(instance%*%beta) > 0.5, 1, 0)
-  pred <- data.frame(p_instance, bag) %>%
-    group_by(bag) %>%
-    summarize(p_bag = combining(p_instance)) %>%
-    #summarize(p_bag = ifelse(sum(p_instance) > 1, 1, 0)) %>%
-    select(p_bag) %>%
-    as.matrix()
-  return(pred)
+predict.milr <- function(object, newdata, bag_newdata, ...){
+  return(coef(object) %>% {split(logit(newdata, .) > 0.5, bag_newdata)} %>%
+         map_int(~ifelse(sum(.) > 1, 1L, 0L)))
 }
 
 #' milr function:

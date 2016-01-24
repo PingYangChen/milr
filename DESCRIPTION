@@ -18,7 +18,8 @@ Imports:
     assertthat,
     plyr (>= 1.8.3),
     purrr (>= 0.2.0),
-    magrittr (>= 1.5)
+    magrittr (>= 1.5),
+    numDeriv
 LinkingTo:
     Rcpp,
     RcppArmadillo

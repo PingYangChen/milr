@@ -10,6 +10,7 @@
 #' testData <- DGP(50, 3, runif(sample(5:21, 1), -5, 5))
 #' a <- milr(testData$Z, testData$X, testData$ID)
 #' coef(a)
+#' @importFrom numDeriv hessian
 #' @export
 CBR_FS <- function(Z, X, ID){
   n <- nrow(X)

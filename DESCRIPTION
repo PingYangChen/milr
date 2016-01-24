@@ -17,10 +17,8 @@ Imports:
     Rcpp (>= 0.12.0),
     assertthat,
     plyr (>= 1.8.3),
-    dplyr (>= 0.4.3),
     purrr (>= 0.2.0),
-    magrittr (>= 1.5),
-    numDeriv
+    magrittr (>= 1.5)
 LinkingTo:
     Rcpp,
     RcppArmadillo

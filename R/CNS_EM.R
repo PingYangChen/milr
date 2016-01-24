@@ -1,46 +1,3 @@
-#' CBR function
-#'
-#' description here
-#' 
-#' @param Z 123
-#' @param X 123
-#' @param ID 123
-#' @return An list involves coefficients and fitted values.
-#' @examples
-#' testData <- DGP(50, 3, runif(sample(5:21, 1), -5, 5))
-#' a <- milr(testData$Z, testData$X, testData$ID)
-#' coef(a)
-#' @importFrom numDeriv grad hessian
-#' @export
-CBR <- function(Z, X, ID){
-  logLik <- function(b){
-    pii <- split(as.data.frame(X), ID) %>% 
-      map(~1-prod(1-logit(as.matrix(.), b)))
-    return(map2_dbl(split(Z, ID) %>% map(unique), pii, 
-                    ~.x*log(.y)+(1-.x)*log(1-.y)) %>% sum)
-  }
-  out <- summary(glm(Z~X-1, family=binomial(link="logit")))$coefficients
-  temp.Lp <- out[,4]
-  temp.L <- out[,1]
-  temp <- temp.L
-  g <- grad(loglik, temp)
-  H <- hessian(loglik, temp)
-  for(i in 1:20)
-  {
-    temp.new <- temp - solve(H, g)
-    test <- crossprod(temp.new - temp)
-    temp <- temp.new
-    g <- grad(loglik, temp)
-    H <- hessian(loglik, temp)
-    if(test < 10^(-6))
-      break
-  }
-  
-  test <- -abs(temp/sqrt(-diag(solve(H))))
-  Lc.p <- 2*pnorm(test)
-  return(list(L.b=temp.L, L.p=temp.Lp, Lc.b=temp, Lc.p=Lc.p))
-}
-
 #' CBR_FS function
 #'
 #' description here
@@ -72,10 +29,12 @@ CBR_FS <- function(Z, X, ID){
     Xbar <- matrix(0,n,p) 
     Pi <- rep(1, n)
     z <- rep(0, n)
-    for(i2 in 1:n.d){
+    for(i2 in 1:n.d)
+    {
       sel <- which(ID == d[i2])
       n.sel <- length(sel)
-      for(j in 1:n.sel){
+      for(j in 1:n.sel)
+      {
         Xbar[i2,] <- Xbar[i2,] + X[sel[j],]*P[sel[j]] 
         Pi[i2] <- Pi[i2]*(1 - 1/(1+exp(-sum(X[sel[j],]*b)))) 	
       }
@@ -114,13 +73,16 @@ CBR_FS <- function(Z, X, ID){
 CBR_EM <- function(Z, X, ID){
   ## log-likelihood of z
   ## used for variance calculation
-  loglik <- function(b){
+  loglik <- function(b)
+  {
     out <- 0
-    for(i in 1:n.d){
+    for(i in 1:n.d)
+    {
       sel <- which(ID == d[i])
       n.sel <- length(sel)
       temp <- 1
-      for(j in 1:n.sel) temp <- temp*(1 - 1/(1+exp(-sum(X[sel[j],]*b)))) 	
+      for(j in 1:n.sel)
+        temp <- temp*(1 - 1/(1+exp(-sum(X[sel[j],]*b)))) 	
       pii <- 1 - temp
       out <- out + Z[sel[1]]*log(pii) + (1-Z[sel[1]])*log(1-pii) 
       #cat(i, out,"\n")
@@ -129,8 +91,10 @@ CBR_EM <- function(Z, X, ID){
   }
   
   ## solving logistic-like regression with MM algorithm
-  MMLogit <- function(y, X, b){
-    for(i in 1:200){
+  MMLogit <- function(y, X, b)
+  {
+    for(i in 1:200)
+    {
       pv <- exp(X%*%b); pv <- pv/(1+pv)
       b.new <- b + XXi%*%t(X)%*%(y - pv)
       test <- b.new - b; test <- sum(test*test)

@@ -28,7 +28,7 @@ predict.milr <- function(object, newdata, bag_newdata, ...){
 #'   The panelty is chosen by BIC.
 #' @param alpha 123
 #' @param maxit An integer, the maximum iteration for EM algorithm.
-#' @return An list involves coefficients and fitted values.
+#' @return An list includes BIC, chosen lambda, coefficients and fitted values.
 #' @examples
 #' set.seed(100)
 #' beta <- runif(10, -5, 5)
@@ -86,7 +86,7 @@ milr <- function(y, x, bag, lambda = 0, alpha = 1, maxit = 500) {
   {
     cat("Using auto-tuning to choose panelty.\n")
     beta <- CLR_lasso(y, cbind(1, x), bag, init_beta, lambda, alpha, maxit)  
-    BIC <- NULL
+    BIC <- -2 * loglik(beta, y, cbind(1, x), bag) + sum(beta != 0) * log(n_bag)
     lambda_out <- lambda
   }
   beta %<>% as.vector %>% set_names(c("intercept", colnames(x)))

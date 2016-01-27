@@ -2,24 +2,25 @@
 % Please edit documentation in R/DGP.R
 \name{DGP}
 \alias{DGP}
-\title{milr function:}
+\title{DGP: data generation}
 \usage{
 DGP(n, m, beta)
 }
 \arguments{
-\item{n}{123}
+\item{n}{The number of observations.}
 
-\item{m}{123}
+\item{m}{The size of bag for each observation.}
 
-\item{beta}{123}
+\item{beta}{The coefficients.}
 }
 \value{
-An list involves coefficients and fitted values.
+An list includes
 }
 \description{
 description here
 }
 \examples{
-data <- DGP(50, 3, runif(sample(5:21, 1), -5, 5))
+data1 <- DGP(50, 3, runif(10, -5, 5))
+data2 <- DGP(50, sample(3:5, 50, TRUE), runif(10, -5, 5))
 }
 

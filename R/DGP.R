@@ -1,13 +1,14 @@
-#' milr function:
+#' DGP: data generation
 #'
 #' description here
 #' 
-#' @param n 123
-#' @param m 123
-#' @param beta 123
-#' @return An list involves coefficients and fitted values.
+#' @param n The number of observations.
+#' @param m The size of bag for each observation.
+#' @param beta The coefficients.
+#' @return An list includes 
 #' @examples
-#' data <- DGP(50, 3, runif(sample(5:21, 1), -5, 5))
+#' data1 <- DGP(50, 3, runif(10, -5, 5))
+#' data2 <- DGP(50, sample(3:5, 50, TRUE), runif(10, -5, 5))
 #' @importFrom purrr map
 #' @export
 DGP <- function(n, m, beta){
@@ -20,14 +21,12 @@ DGP <- function(n, m, beta){
     m <- rep(m, length = n)
   X <- scale(matrix(rnorm(sum(m)*p),sum(m),p)) %>% 
     matrix(nrow(.), ncol(.))  # remove attributes
-  pr <- logit(X, beta)
-  Y <- rbinom(sum(m), 1, pr)
+  Y <- logit(X, beta) %>% rbinom(sum(m), 1, .)
   ID <- rep(1:n, m)
-  Z <- split(Y, ID) %>% map(~rep(any(.==1), length(.))) %>% 
-    unlist %>% as.integer
-  if(all(Z==1))
-    Z[ID==sample(1:n,1)] <- 0
-  if(all(Z==0))
-    Z[ID==sample(1:n,1)] <- 1
+  Z <- split(Y, ID) %>% map(~rep(any(. == 1), length(.))) %>% unlist %>% as.integer
+  if(all(Z == 1))
+    Z[ID == sample(1:n, 1)] <- 0
+  if(all(Z == 0))
+    Z[ID == sample(1:n, 1)] <- 1
   return(list(Z = Z, X = X, ID = ID))
 }

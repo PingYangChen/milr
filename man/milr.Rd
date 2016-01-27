@@ -6,7 +6,7 @@
 \alias{milr-package}
 \title{The milr package: a implementation for multiple-instance logistic regression with lasso penalty}
 \usage{
-milr(y, x, bag = NULL, lambda = 0, alpha = 1, maxit = 500)
+milr(y, x, bag, lambda = 0, alpha = 1, maxit = 500)
 }
 \arguments{
 \item{y}{A vector, its elements contain two different values.}
@@ -23,7 +23,7 @@ The panelty is chosen by BIC.}
 \item{maxit}{An integer, the maximum iteration for EM algorithm.}
 }
 \value{
-An list involves coefficients and fitted values.
+An list includes BIC, chosen lambda, coefficients and fitted values.
 }
 \description{
 Description here

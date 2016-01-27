@@ -20,7 +20,6 @@ DGP <- function(n, m, beta){
     m <- rep(m, length = n)
   X <- scale(matrix(rnorm(sum(m)*p),sum(m),p)) %>% 
     matrix(nrow(.), ncol(.))  # remove attributes
-  X[ ,1] <- 1
   pr <- logit(X, beta)
   Y <- rbinom(sum(m), 1, pr)
   ID <- rep(1:n, m)

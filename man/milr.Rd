@@ -9,13 +9,14 @@
 milr(y, x, bag = NULL, lambda = 0, alpha = 1, maxit = 500)
 }
 \arguments{
-\item{y}{123}
+\item{y}{A vector, its elements contain two different values.}
 
-\item{x}{123}
+\item{x}{The design matrix. The number of rows of x must be equal to the length of y.}
 
-\item{bag}{123}
+\item{bag}{bag variable.}
 
-\item{lambda}{123}
+\item{lambda}{The panelty for lasso. Default is exp(seq(log(0.01), log(50),length = 30)).
+The panelty is chosen by BIC.}
 
 \item{alpha}{123}
 
@@ -36,8 +37,14 @@ description here
 }
 }
 \examples{
-testData <- DGP(50, 3, runif(sample(5:21, 1), -5, 5))
-a <- milr(testData$Z, testData$X, testData$ID)
-coef(a)
+set.seed(100)
+beta <- runif(10, -5, 5)
+trainData <- DGP(70, 3, beta)
+testData <- DGP(30, 3, beta)
+milr_result <- milr(trainData$Z, trainData$X, trainData$ID, 
+  exp(seq(log(0.01), log(50),length = 30)))
+coef(milr_result)      # coefficients
+fitted(milr_result)    # fitted values
+predict(milr_result, testData$X, testData$ID) # predicted label
 }
 

@@ -16,10 +16,9 @@ Depends:
 Imports:
     Rcpp (>= 0.12.0),
     assertthat,
-    plyr (>= 1.8.3),
     purrr (>= 0.2.0),
     magrittr (>= 1.5),
-    numDeriv
+    logistf
 LinkingTo:
     Rcpp,
     RcppArmadillo
@@ -30,7 +29,6 @@ License: MIT + file LICENSE
 Collate:
     'RcppExports.R'
     'data-MUSK1.R'
-    'CNS_EM.R'
     'milr.R'
     'DGP.R'
     'milr_main.R'

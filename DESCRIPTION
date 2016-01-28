@@ -2,7 +2,7 @@ Package: milr
 Type: Package
 Title: milr: multiple-instance logistic regression with lasso penalty
 Version: 0.1.0
-Date: 2016-02-01
+Date: 2016-02-02
 Description: The multiple-instance logistic regression with lasso penalty.
 Authors@R: c(person("xxxxxxxx", "xx", , "xxxxxx@gmail.com", c("aut")),
              person("xxxxxxxxx", "xxx", , "xxxxxx@gmail.com", c("aut")),

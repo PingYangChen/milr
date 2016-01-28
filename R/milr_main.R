@@ -42,6 +42,7 @@ predict.milr <- function(object, newdata, bag_newdata, ...){
 #' @importFrom magrittr set_names
 #' @importFrom purrr map map_int map2_dbl
 #' @importFrom logistf logistf
+#' @rdname milr_main
 #' @export
 milr <- function(y, x, bag, lambda = 0, alpha = 1, maxit = 500) {
   # if x is vector, transform it to matrix

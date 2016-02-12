@@ -18,6 +18,6 @@ whereItComesFrom
 MUSK1
 }
 \description{
-description here
+example data: MUSK1
 }
 

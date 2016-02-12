@@ -44,15 +44,23 @@ print.summary.milr <- function(x, digits = max(3L, getOption("digits") - 2L), ..
 #' @param y A vector. Binay response.
 #' @param x The design matrix. The number of rows of x must be equal to the length of y.
 #' @param bag A vector, bag id.
-#' @param lambda The panelty for lasso. Default is exp(seq(log(0.01), log(50),length = 30)).
-#'   The panelty is chosen by BIC.
+#' @param lambda The panelty for LASSO. Default is 0 (not use LASSO). If \code{lambda} is vector, the penalty will be chosen by BIC.
+#'   If \code{lambda} = 0, then the penalty will be chosen automatically.
 #' @param maxit An integer, the maximum iteration for EM algorithm.
-#' @return An list includes BIC, chosen lambda, coefficients and fitted values.
+#' @return An list includes BIC, chosen lambda, coefficients, fitted values, log-likelihood and variances of coefficients.
 #' @examples
 #' set.seed(100)
 #' beta <- runif(5, -5, 5)
 #' trainData <- DGP(70, 3, beta)
 #' testData <- DGP(30, 3, beta)
+#' # default (not use LASSO)
+#' milr_result <- milr(trainData$Z, trainData$X, trainData$ID)
+#' coef(milr_result)      # coefficients
+#' fitted(milr_result)    # fitted values
+#' summary(milr_result)   # summary milr
+#' predict(milr_result, testData$X, testData$ID) # predicted label
+#' 
+#' # use BIC to choose penalty
 #' milr_result <- milr(trainData$Z, trainData$X, trainData$ID,
 #'   exp(seq(log(0.01), log(50),length = 30)))
 #' coef(milr_result)      # coefficients
@@ -102,10 +110,10 @@ milr <- function(y, x, bag, lambda = 0, maxit = 500) {
   
   # initial value for coefficients
   init_beta <- coef(logistf(y~x))
+  n_bag <- length(unique(bag))
   if (length(lambda) > 1)
   {
     cat("Using BIC to choose optimized penalty.\n")
-    n_bag <- length(unique(bag))
     BIC <- vector('numeric', length(lambda))
     for (i in seq_along(lambda))
     {

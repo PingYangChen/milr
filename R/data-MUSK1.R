@@ -1,6 +1,4 @@
 #' example data: MUSK1
-#'
-#' description here
 #' 
 #' @format A data.frame with 476 observations on 168 variables.
 #' \itemize{

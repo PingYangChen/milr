@@ -26,13 +26,21 @@ Please refer to \link{milr-package}.
 }
 \examples{
 set.seed(100)
-beta <- runif(10, -5, 5)
+beta <- runif(5, -5, 5)
 trainData <- DGP(70, 3, beta)
 testData <- DGP(30, 3, beta)
-milr_result <- milr(trainData$Z, trainData$X, trainData$ID, 
+milr_result <- milr(trainData$Z, trainData$X, trainData$ID,
   exp(seq(log(0.01), log(50),length = 30)))
 coef(milr_result)      # coefficients
 fitted(milr_result)    # fitted values
+summary(milr_result)   # summary milr
+predict(milr_result, testData$X, testData$ID) # predicted label
+
+# use auto-tuning
+milr_result <- milr(trainData$Z, trainData$X, trainData$ID, lambda = -1)
+coef(milr_result)      # coefficients
+fitted(milr_result)    # fitted values
+summary(milr_result)   # summary milr
 predict(milr_result, testData$X, testData$ID) # predicted label
 }
 

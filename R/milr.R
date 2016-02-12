@@ -59,6 +59,13 @@ print.summary.milr <- function(x, digits = max(3L, getOption("digits") - 2L), ..
 #' fitted(milr_result)    # fitted values
 #' summary(milr_result)   # summary milr
 #' predict(milr_result, testData$X, testData$ID) # predicted label
+#' 
+#' # use auto-tuning
+#' milr_result <- milr(trainData$Z, trainData$X, trainData$ID, lambda = -1)
+#' coef(milr_result)      # coefficients
+#' fitted(milr_result)    # fitted values
+#' summary(milr_result)   # summary milr
+#' predict(milr_result, testData$X, testData$ID) # predicted label
 #' @importFrom magrittr set_names
 #' @importFrom purrr map map_int map2_dbl
 #' @importFrom logistf logistf
@@ -83,6 +90,15 @@ milr <- function(y, x, bag, lambda = 0, maxit = 500) {
     return(purrr::map2_dbl(split(Z, ID) %>% purrr::map(unique), pii, 
                            ~.x*log(.y)+(1-.x)*log(1-.y)) %>% sum(na.rm = TRUE))
   }
+
+  if (lambda == -1)
+  {
+    cat("Lambda is selected automatically.\n")
+    m <- table(bag)
+    zi <- tapply(y, bag, function(x) sum(x) > 0) %>% as.numeric
+    lambdaMax <- sqrt(sum(m-1)) * sqrt(sum(m**(1-2*zi)))
+    lambda <- exp(seq(log(lambdaMax/1000), log(lambdaMax), length = 20))
+  }
   
   # initial value for coefficients
   init_beta <- coef(logistf(y~x))
@@ -99,16 +115,8 @@ milr <- function(y, x, bag, lambda = 0, maxit = 500) {
     }
     lambda_out <- lambda[which.min(BIC)]
     beta <- CLR_lasso(y, cbind(1, x), bag, init_beta, lambda_out, alpha, maxit)  
-  } else if (lambda == -1)
-  {
-    cat("Using auto-tuning to choose penalty.\n")
-    cat("This part is undone.\n")
-    beta <- init_beta
-    BIC <- NULL
-    lambda_out <- NULL
   } else
   {
-    cat("Using auto-tuning to choose penalty.\n")
     beta <- CLR_lasso(y, cbind(1, x), bag, init_beta, lambda, alpha, maxit)  
     BIC <- -2 * loglik(beta, y, cbind(1, x), bag) + sum(beta != 0) * log(n_bag)
     lambda_out <- lambda

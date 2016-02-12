@@ -45,7 +45,7 @@ print.summary.milr <- function(x, digits = max(3L, getOption("digits") - 2L), ..
 #' @param y A vector. Binay response.
 #' @param x The design matrix. The number of rows of x must be equal to the length of y.
 #' @param bag A vector, bag id.
-#' @param lambda The panelty for LASSO. Default is 0 (not use LASSO). If \code{lambda} is vector, the penalty will be chosen by BIC.
+#' @param lambda The penalty for LASSO. Default is 0 (not use LASSO). If \code{lambda} is vector, the penalty will be chosen by BIC.
 #'   If \code{lambda} = 0, then the penalty will be chosen automatically.
 #' @param maxit An integer, the maximum iteration for EM algorithm.
 #' @return An list includes BIC, chosen lambda, coefficients, fitted values, log-likelihood and variances of coefficients.

@@ -3,21 +3,23 @@
 \docType{data}
 \name{MUSK1}
 \alias{MUSK1}
-\title{example data: MUSK1}
+\title{Benchmark dataset for multiple instance experiments}
 \format{A data.frame with 476 observations on 168 variables.
 \itemize{
-  \item \code{bag}: bag variable
-  \item \code{label}:  label variable
+  \item \code{bag}: bag id
+  \item \code{label}: label
   \item \code{x1 ~ x166}: coveriates
-  ... 
 }}
 \source{
-whereItComesFrom
+T. G. Dietterich, R. H. Lathrop, and T. Lozano-P`erez. (1997) Solving the multiple instance problem with axis-parallel rectangles. Artificial Intelligence, 89, 31 - 71.
 }
 \usage{
 MUSK1
 }
 \description{
-example data: MUSK1
+The MUSK data sets are the most widely used benchmark data sets when comparing 
+different MI learning methods. The MUSK datasets consist of conformations. Each 
+conformation is represented by 166 features. In MUSK1, the average conformation
+in one bag is 5. For more detailed descriptions, please refer to the paper in 'Source'.
 }
 

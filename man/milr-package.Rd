@@ -10,9 +10,8 @@ utilizing EM algorithm. Also, LASSO penalty is implemented for variable selectio
 }
 \references{
 \enumerate{
-  \item Multiple-Instance Logistic Regression with LASSO Penalty, 
-   Ray-Bing Chen, Kuang-Hung Cheng, Sheng-Mao Chang, Shuen-Lin Jeng, 
-   Ping-Yang Chen, Chun-Hao Yang, and Chi-Chun Hsia, 2016
+  \item Ray-Bing Chen, Kuang-Hung Cheng, Sheng-Mao Chang, Shuen-Lin Jeng, 
+   Ping-Yang Chen, Chun-Hao Yang, and Chi-Chun Hsia. (2016) Multiple-Instance Logistic Regression with LASSO Penalty.
 }
 }
 

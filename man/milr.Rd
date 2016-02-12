@@ -13,7 +13,7 @@ milr(y, x, bag, lambda = 0, maxit = 500)
 
 \item{bag}{A vector, bag id.}
 
-\item{lambda}{The panelty for LASSO. Default is 0 (not use LASSO). If \code{lambda} is vector, the penalty will be chosen by BIC.
+\item{lambda}{The penalty for LASSO. Default is 0 (not use LASSO). If \code{lambda} is vector, the penalty will be chosen by BIC.
 If \code{lambda} = 0, then the penalty will be chosen automatically.}
 
 \item{maxit}{An integer, the maximum iteration for EM algorithm.}

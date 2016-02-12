@@ -17,7 +17,7 @@ environment:
   CRAN : http://cran.rstudio.com
 
 build_script:
-  - travis-tool.sh install_r numDeriv plyr magrittr testthat
+  - travis-tool.sh install_r numDeriv plyr magrittr testthat logistf
   - travis-tool.sh install_deps
 
 test_script:

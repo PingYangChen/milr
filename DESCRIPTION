@@ -3,11 +3,11 @@ Type: Package
 Title: milr: multiple-instance logistic regression with lasso penalty
 Version: 0.1.0
 Date: 2016-02-01
-Description: The multiple-instance logistic regression with lasso penalty.
-Authors@R: c(person("xxxxxxxx", "xx", , "xxxxxx@gmail.com", c("aut")),
-             person("xxxxxxxxx", "xxx", , "xxxxxx@gmail.com", c("aut")),
-             person("xxxxxxxxxx", "xxxx", , "xxxxxx@gmail.com", c("aut")),
-             person("ChingChuan", "Chen", , "zw12356@gmail.com", c("aut", "cre")))
+Description: This package performs maximum likelihood estimation for multiple-instance logistic regression utilizing EM algorithm. Also, LASSO penalty is implemented for variable selection. 
+Authors@R: c(person("ChingChuan", "Chen", , "celestial0230@stat.sinica.edu.tw", c("aut", "cre")), 
+             person("Ping-Yang", "Chen", , "pychen@stat.ncku.edu.tw", c("aut")),
+             person("Chun-Hao", "Yang", , "chunhaoyang@ufl.edu", c("aut")),
+             person("Sheng-Mao", "Chang", , "smchang@mail.ncku.edu.tw", c("aut")))
 URL: https://github.com/Chingchuan-chen/milr
 BugReports: https://github.com/Chingchuan-chen/milr/issues
 Maintainer: ChingChuan Chen <zw12356@gmail.com>
@@ -18,6 +18,7 @@ Imports:
     assertthat,
     purrr (>= 0.2.0),
     magrittr (>= 1.5),
+    numDeriv,
     logistf
 LinkingTo:
     Rcpp,
@@ -29,7 +30,7 @@ License: MIT + file LICENSE
 Collate:
     'RcppExports.R'
     'data-MUSK1.R'
-    'milr.R'
+    'milr-package.R'
     'DGP.R'
-    'milr_main.R'
+    'milr.R'
 RoxygenNote: 5.0.1.9000

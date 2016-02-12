@@ -7,17 +7,18 @@
 DGP(n, m, beta)
 }
 \arguments{
-\item{n}{The number of observations.}
+\item{n}{An integer. The number of subjects (bags).}
 
-\item{m}{The size of bag for each observation.}
+\item{m}{An integer or vector. When \code{m} is integer, subjects have the same number of instance. 
+When \code{m} is vector, subjects have corresponding number of instance.}
 
-\item{beta}{The coefficients.}
+\item{beta}{A vector. The true regression coefficients.}
 }
 \value{
-An list includes
+An list includes status of subjects (bags) \code{Z}, design matrix \code{X}, subject id for all components (instances) \code{ID}.
 }
 \description{
-description here
+Simulate multiple-instance regression data.
 }
 \examples{
 data1 <- DGP(50, 3, runif(10, -5, 5))

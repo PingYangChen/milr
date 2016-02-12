@@ -72,11 +72,11 @@ arma::vec CLR_lasso(const arma::vec& Z, const arma::mat& X, const arma::vec& ID_
         new_beta[k] = tmp/XWX;
       } else
       {
-        if(abs(tmp) <= lambda)
+        if(abs(tmp) <= lambda*alpha)
           new_beta[k] = 0;
-        if(tmp > lambda)
+        if(tmp > lambda*alpha)
           new_beta[k] = (tmp-lambda)/(XWX+lambda*(1-alpha));
-        if(tmp < -lambda)
+        if(tmp < -lambda*alpha)
           new_beta[k] = (tmp+lambda)/(XWX+lambda*(1-alpha));
       }
     }

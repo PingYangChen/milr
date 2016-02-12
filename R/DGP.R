@@ -1,11 +1,12 @@
 #' DGP: data generation
 #'
-#' description here
+#' Simulate multiple-instance regression data.
 #' 
-#' @param n The number of observations.
-#' @param m The size of bag for each observation.
-#' @param beta The coefficients.
-#' @return An list includes 
+#' @param n An integer. The number of subjects (bags).
+#' @param m An integer or vector. When \code{m} is integer, subjects have the same number of instance. 
+#'   When \code{m} is vector, subjects have corresponding number of instance. 
+#' @param beta A vector. The true regression coefficients.
+#' @return An list includes status of subjects (bags) \code{Z}, design matrix \code{X}, subject id for all components (instances) \code{ID}.
 #' @examples
 #' data1 <- DGP(50, 3, runif(10, -5, 5))
 #' data2 <- DGP(50, sample(3:5, 50, TRUE), runif(10, -5, 5))

@@ -29,6 +29,7 @@ summary.milr <- function(object, ...){
 
 #' @export
 #' @method print summary.milr
+#' @importFrom magrittr set_colnames
 print.summary.milr <- function(x, digits = max(3L, getOption("digits") - 2L), ...){
   cat(sprintf("Log-Likelihood: %.3f\n", x$loglik))
   outMat <- cbind(x$beta, x$se, x$z, x$pvalue) %>% 

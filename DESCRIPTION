@@ -32,5 +32,6 @@ Collate:
     'data-MUSK1.R'
     'milr-package.R'
     'DGP.R'
+    'softmax.R'
     'milr.R'
 RoxygenNote: 5.0.1.9000

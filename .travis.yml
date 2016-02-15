@@ -1,15 +1,13 @@
-language: r
+language: R
+r: devel
+
+r_build_args: --no-build-vignettes --no-manual --no-resave-data
+r_check_args: --no-build-vignettes --no-manual
 
 env:
   global:
-    - R_BUILD_ARGS="--no-build-vignettes --no-manual"
-    - R_CHECK_ARGS="--no-build-vignettes --no-manual --as-cran"
     - CRAN=http://cran.rstudio.com
 
-os:
-  - linux
-  - osx
-  
 matrix:
   allow_failures:
     - os: osx
@@ -38,15 +36,15 @@ r_binary_packages:
   - magrittr
   - testthat
 
-r_github_packages:  
-  - jimhester/covr
+# r_github_packages:  
+  # - jimhester/covr
 
 after_failure:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cat /home/travis/build/ChingChuan-Chen/milr/milr.Rcheck/00install.out; fi
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then cat /Users/travis/build/ChingChuan-Chen/milr/milr.Rcheck/00install.out; fi
 
 after_success:
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then Rscript -e 'covr::codecov();covr::coveralls()'; fi
+  # - if [ "$TRAVIS_OS_NAME" == "linux" ]; then Rscript -e 'covr::codecov();covr::coveralls()'; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cat /home/travis/build/ChingChuan-Chen/milr/milr.Rcheck/00install.out; fi
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then cat /Users/travis/build/ChingChuan-Chen/milr/milr.Rcheck/00check.log; fi
 

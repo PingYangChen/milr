@@ -4,9 +4,9 @@ r: devel
 r_build_args: --no-build-vignettes --no-manual --no-resave-data
 r_check_args: --no-build-vignettes --no-manual
 
-env:
-  global:
-    - CRAN=http://cran.rstudio.com
+repos:
+  CRAN: https://cloud.r-project.org
+  ropensci: http://packages.ropensci.org
 
 matrix:
   allow_failures:
@@ -24,9 +24,9 @@ compiler:
   - gcc
   - clang
 
-before_install:
-  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then curl -O http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2 ; fi
-  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then sudo tar fvxz gfortran-4.8.2-darwin13.tar.bz2 -C / ; fi
+# before_install:
+  # - if [ "$TRAVIS_OS_NAME" == "osx" ]; then curl -O http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2 ; fi
+  # - if [ "$TRAVIS_OS_NAME" == "osx" ]; then sudo tar fvxz gfortran-4.8.2-darwin13.tar.bz2 -C / ; fi
 
 r_binary_packages:
   - devtools
@@ -41,12 +41,12 @@ r_binary_packages:
 
 after_failure:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cat /home/travis/build/ChingChuan-Chen/milr/milr.Rcheck/00install.out; fi
-  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then cat /Users/travis/build/ChingChuan-Chen/milr/milr.Rcheck/00install.out; fi
+  # - if [ "$TRAVIS_OS_NAME" == "osx" ]; then cat /Users/travis/build/ChingChuan-Chen/milr/milr.Rcheck/00install.out; fi
 
 after_success:
   # - if [ "$TRAVIS_OS_NAME" == "linux" ]; then Rscript -e 'covr::codecov();covr::coveralls()'; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cat /home/travis/build/ChingChuan-Chen/milr/milr.Rcheck/00install.out; fi
-  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then cat /Users/travis/build/ChingChuan-Chen/milr/milr.Rcheck/00check.log; fi
+  # - if [ "$TRAVIS_OS_NAME" == "osx" ]; then cat /Users/travis/build/ChingChuan-Chen/milr/milr.Rcheck/00check.log; fi
 
 notifications:
   email:

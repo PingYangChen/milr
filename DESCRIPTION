@@ -3,7 +3,9 @@ Type: Package
 Title: milr: multiple-instance logistic regression with lasso penalty
 Version: 0.1.0
 Date: 2016-02-01
-Description: This package performs maximum likelihood estimation for multiple-instance logistic regression utilizing EM algorithm. Also, LASSO penalty is implemented for variable selection. 
+Description: This package performs maximum likelihood estimation for 
+  multiple-instance logistic regression utilizing EM algorithm. 
+  Also, LASSO penalty is implemented for variable selection. 
 Authors@R: c(person("ChingChuan", "Chen", , "celestial0230@stat.sinica.edu.tw", c("aut", "cre")), 
              person("Ping-Yang", "Chen", , "pychen@stat.ncku.edu.tw", c("aut")),
              person("Chun-Hao", "Yang", , "chunhaoyang@ufl.edu", c("aut")),

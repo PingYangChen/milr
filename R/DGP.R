@@ -30,5 +30,5 @@ DGP <- function(n, m, beta){
     Z[ID == sample(1:n, 1)] <- 0
   if(all(Z == 0))
     Z[ID == sample(1:n, 1)] <- 1
-  return(list(Z = Z, X = X, ID = ID))
+  return(list(Z = Z, X = X[ , 2:ncol(X)], ID = ID))
 }

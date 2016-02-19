@@ -86,6 +86,9 @@ milr <- function(y, x, bag, lambda = 0, maxit = 500) {
   # if x is vector, transform it to matrix
   if (is.vector(x))
     x <- matrix(x, ncol = 1)
+  if (!is.matrix(x))
+    x %<>% as.matrix
+  bag %<>% factor %>% as.integer
   # input check
   alpha <- 1
   assert_that(length(unique(y)) == 2, length(y) == nrow(x),

@@ -27,12 +27,12 @@ arma::vec q(const arma::vec& p_Y, const arma::uvec& ID){
   vec p_bag = ones<vec>(ID_table.n_elem);
   // assuming that the bags(ID) are labeled from 1 to the number of bags and are sorted
   for(uword i = 0; i < ID_table.size(); i++)
-    p_bag(ID_table(i)) = prod(1 - p_Y.elem(find(ID == ID_table(i))));
+    p_bag(ID_table(i)) = prod(1.0 - p_Y.elem(find(ID == ID_table(i))));
   p_bag = 1 - p_bag;
   
   vec q = p_Y;
-  q.elem(find(p_Y == 0)).zeros();
-  uvec loc_nonzero_q = find(q > 0);
+  q.elem(find(p_Y == 0.0)).zeros();
+  uvec loc_nonzero_q = find(q > 0.0);
   q.elem(loc_nonzero_q) /= p_bag.elem(ID.elem(loc_nonzero_q));
   q.elem(find_nonfinite(q)).ones();
   return(q);
@@ -52,8 +52,8 @@ arma::vec CLR_lasso(const arma::vec& Z, const arma::mat& X, const arma::vec& ID_
   
   // X is normalized prior to data analysis
   // so XWX = W * sum(x^2) = W * (n-1)
-  double XWX = W * (n-1);
-  vec new_beta(p), p_vec(n), q_vec(n), U(n); 
+  double XWX = W * ((double) n - 1.0);
+  vec new_beta(p), p_vec(n), q_vec(n), U(n);
   
   while(diff > 1e-5 && iter < maxit){
     p_vec = logit(X, beta);
@@ -61,7 +61,6 @@ arma::vec CLR_lasso(const arma::vec& Z, const arma::mat& X, const arma::vec& ID_
     // or 1, when a probability is within 10^(-5) of 1, we set it to 1. 0 is treated
     // similarly.
     p_vec.elem(find(p_vec < 1e-5)).zeros();
-    p_vec.elem(find(p_vec > 1- 1e-5)).zeros();
     q_vec = q(p_vec, ID);
     vec S = trans(X) * (Z % q_vec - p_vec);
     for (uword k = 0; k < p; k++)

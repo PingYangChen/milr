@@ -56,6 +56,8 @@ softmax <- function(y, x, bag, alpha = 0, maxit = 500) {
     x <- matrix(x, ncol = 1)
   if (!is.matrix(x))
     x %<>% as.matrix
+  if (!all(y %in% c(0, 1)))
+    error('y must be 0 and 1.')
   # input check
   assert_that(length(unique(y)) == 2, length(y) == nrow(x),
               all(is.finite(y)), is.numeric(y), all(is.finite(x)), is.numeric(x),  

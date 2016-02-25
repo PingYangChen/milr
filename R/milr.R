@@ -89,7 +89,7 @@ milr <- function(y, x, bag, lambda = 0, maxit = 500) {
   if (!is.matrix(x))
     x %<>% as.matrix
   if (!all(y %in% c(0, 1)))
-    error('y must be 0 and 1.')
+    stop('y must be 0 and 1.')
   bag %<>% factor %>% as.integer
   # input check
   alpha <- 1

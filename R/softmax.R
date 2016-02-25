@@ -54,6 +54,8 @@ softmax <- function(y, x, bag, alpha = 0, maxit = 500) {
   # if x is vector, transform it to matrix
   if (is.vector(x))
     x <- matrix(x, ncol = 1)
+  if (!is.matrix(x))
+    x %<>% as.matrix
   # input check
   assert_that(length(unique(y)) == 2, length(y) == nrow(x),
               all(is.finite(y)), is.numeric(y), all(is.finite(x)), is.numeric(x),  

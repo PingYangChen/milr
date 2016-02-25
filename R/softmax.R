@@ -71,7 +71,8 @@ softmax <- function(y, x, bag, alpha = 0, maxit = 500) {
   }
   
   # initial value for coefficients
-  init_beta <- coef(logistf(y~x))
+  # init_beta <- coef(logistf(y~x))
+  init_beta <- coef(glm(y~x, family = binomial(link="logit")))
   # optimize coefficients
   beta <- optim(init_beta, nloglik, control = list(maxit = maxit))$par
   

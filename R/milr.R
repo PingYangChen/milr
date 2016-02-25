@@ -113,7 +113,8 @@ milr <- function(y, x, bag, lambda = 0, maxit = 500) {
   }
   
   # initial value for coefficients
-  init_beta <- coef(logistf(y~x))
+  # init_beta <- coef(logistf(y~x))
+  init_beta <- coef(glm(y~x, family = binomial(link="logit")))
   n_bag <- length(unique(bag))
   if (length(lambda) > 1)
   {

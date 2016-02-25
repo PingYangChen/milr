@@ -103,7 +103,7 @@ milr <- function(y, x, bag, lambda = 0, maxit = 500) {
                            ~.x*log(.y)+(1-.x)*log(1-.y)) %>% sum(na.rm = TRUE))
   }
 
-  if (lambda == -1)
+  if (length(lambda) == 1 && all(lambda == -1))
   {
     cat("Lambda is selected automatically.\n")
     m <- table(bag)

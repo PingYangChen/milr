@@ -129,7 +129,8 @@ milr <- function(y, x, bag, lambda = 0, maxit = 500) {
         sum(beta_select != 0) * log(n_bag)
     }
     lambda_out <- lambda[which.min(BIC)]
-    beta <- CLR_lasso(y, cbind(1, x), bag, init_beta, lambda_out, alpha, maxit)  
+    cat("The chosen penalty is", sprintf("%.4f.", lambda_out), "\n")
+    beta <- CLR_lasso(y, cbind(1, x), bag, init_beta, lambda_out, alpha, maxit)
   } else
   {
     beta <- CLR_lasso(y, cbind(1, x), bag, init_beta, lambda, alpha, maxit)  

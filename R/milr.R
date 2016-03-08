@@ -13,16 +13,22 @@ fitted.milr <- function(object, ...){
 #' @export
 #' @method predict milr
 predict.milr <- function(object, newdata, bag_newdata, ...){
-  return(coef(object) %>% {split(logit(cbind(1, newdata), .) > 0.5, bag_newdata)} %>%
-         map_int(~ifelse(sum(.) > 1, 1L, 0L)))
+  return(coef(object) %>% {split(logit(cbind(1, newdata), .), bag_newdata)} %>%
+         map_dbl(~1-prod(1-.) > 0.5))
 }
 
 #' @export
 #' @method summary milr
 summary.milr <- function(object, ...){
-  summary <- list(loglik = object$loglik, beta = object$coeffiecents, se = sqrt(object$var),
-                  z = object$coeffiecents / sqrt(object$var))
-  summary$pvalue <- pnorm(abs(summary$z), 0, 1, FALSE) * 2
+  if (object$lambda_chosen == 0)
+  {
+    summary <- list(loglik = object$loglik, beta = object$coeffiecents, se = sqrt(object$var),
+                    z = object$coeffiecents / sqrt(object$var), lambda = object$lambda_chosen)
+    summary$pvalue <- pnorm(abs(summary$z), 0, 1, FALSE) * 2
+  } else
+  {
+    summary <- list(loglik = object$loglik, beta = object$coeffiecents, lambda = object$lambda_chosen)
+  }
   class(summary) <- "summary.milr"
   return(summary)
 }
@@ -32,10 +38,20 @@ summary.milr <- function(object, ...){
 #' @importFrom magrittr set_colnames
 print.summary.milr <- function(x, digits = max(3L, getOption("digits") - 2L), ...){
   cat(sprintf("Log-Likelihood: %.3f\n", x$loglik))
-  outMat <- cbind(x$beta, x$se, x$z, x$pvalue) %>% 
-    magrittr::set_colnames(c("Estimate", "Std.Err", "Z value", "Pr(>z)"))
-  cat("Estimates:\n")
-  printCoefmat(outMat, digits = digits)
+  if (x$lambda == 0)
+  {
+    outMat <- cbind(x$beta, x$se, x$z, x$pvalue) %>% 
+      magrittr::set_colnames(c("Estimate", "Std.Err", "Z value", "Pr(>z)"))
+    cat("Estimates:\n")
+    printCoefmat(outMat, digits = digits)
+  } else
+  {
+    cat(sprintf("Chosen Penalty: %.3f\n", x$lambda))
+    outMat <- cbind(x$beta) %>% 
+      magrittr::set_colnames(c("Estimate"))
+    cat("Estimates:\n")
+    printCoefmat(outMat, digits = digits)
+  }
 }
 
 #' Maximum likelihood estimation of multiple-instance logistic regression with LASSO penalty
@@ -76,7 +92,7 @@ print.summary.milr <- function(x, digits = max(3L, getOption("digits") - 2L), ..
 #' summary(milr_result)   # summary milr
 #' predict(milr_result, testData$X, testData$ID) # predicted label
 #' @importFrom magrittr set_names
-#' @importFrom purrr map map_int map2_dbl
+#' @importFrom purrr map map_int map2_dbl map_dbl
 #' @importFrom logistf logistf
 #' @importFrom numDeriv hessian
 #' @name milr
@@ -138,11 +154,15 @@ milr <- function(y, x, bag, lambda = 0, maxit = 500) {
     lambda_out <- lambda
   }
   beta %<>% as.vector %>% set_names(c("intercept", colnames(x)))
-  fit_y <- beta %>% {split(logit(cbind(1, x), .) > 0.5, bag)} %>%
-    purrr::map_int(~ifelse(sum(.) > 1, 1L, 0L))
+  fit_y <- beta %>% {split(logit(cbind(1, x), .), bag)} %>%
+    map_dbl(~1-prod(1-.) > 0.5)
+  if (lambda_out == 0)
+    bateVar = -diag(solve(numDeriv::hessian(function(b) loglik(b, y, cbind(1, x), bag), beta)))
+  else
+    bateVar = NULL
   out <- list(BIC = BIC, lambda_chosen = lambda_out, 
               coeffiecents = beta, fitted = fit_y, loglik = loglik(beta, y, cbind(1, x), bag),
-              var = -diag(solve(numDeriv::hessian(function(b) loglik(b, y, cbind(1, x), bag), beta))))
+              var = bateVar)
   class(out) <- 'milr'
   return(out)
 }

@@ -14,7 +14,7 @@ fitted.milr <- function(object, ...){
 #' @method predict milr
 predict.milr <- function(object, newdata, bag_newdata, ...){
   return(coef(object) %>% {split(logit(cbind(1, newdata), .), bag_newdata)} %>%
-         map_dbl(~1-prod(1-.) > 0.5))
+         map_int(~1-prod(1-.) > 0.5))
 }
 
 #' @export
@@ -155,7 +155,7 @@ milr <- function(y, x, bag, lambda = 0, maxit = 500) {
   }
   beta %<>% as.vector %>% set_names(c("intercept", colnames(x)))
   fit_y <- beta %>% {split(logit(cbind(1, x), .), bag)} %>%
-    map_dbl(~1-prod(1-.) > 0.5)
+    map_int(~1-prod(1-.) > 0.5)
   if (lambda_out == 0)
     bateVar = -diag(solve(numDeriv::hessian(function(b) loglik(b, y, cbind(1, x), bag), beta)))
   else

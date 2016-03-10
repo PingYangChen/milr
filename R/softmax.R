@@ -13,10 +13,9 @@ fitted.softmax <- function(object, ...){
 #' @export
 #' @method predict softmax
 predict.softmax <- function(object, newdata, bag_newdata, ...){
-  return(coef(object) %>% {split(logit(cbind(1, newdata), .) > 0.5, bag_newdata)} %>%
-           map_int(~ifelse(sum(.) > 1, 1L, 0L)))
+  return(coef(object) %>% {split(logit(cbind(1, newdata), .), bag_newdata)} %>%
+         purrr::map_int(~1-prod(1-.) > 0.5))
 }
-
 
 #' Multiple-instance logistic regression via softmax function
 #'
@@ -79,8 +78,8 @@ softmax <- function(y, x, bag, alpha = 0, maxit = 500) {
   beta <- optim(init_beta, nloglik, control = list(maxit = maxit))$par
   
   beta %<>% as.vector %>% set_names(c("intercept", colnames(x)))
-  fit_y <- beta %>% {split(logit(cbind(1, x), .) > 0.5, bag)} %>%
-    purrr::map_int(~ifelse(sum(.) > 1, 1L, 0L))
+  fit_y <- beta %>% {split(logit(cbind(1, x), .), bag)} %>%
+    purrr::map_int(~1-prod(1-.) > 0.5)
   out <- list(coeffiecents = beta, fitted = fit_y, loglik = -nloglik(beta))
   class(out) <- 'softmax'
   return(out)

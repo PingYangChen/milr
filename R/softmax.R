@@ -63,7 +63,7 @@ softmax <- function(y, x, bag, alpha = 0, maxit = 500) {
               alpha >= 0, is.finite(alpha), is.numeric(alpha), is.finite(maxit), is.numeric(maxit), 
               abs(maxit - floor(maxit)) < 1e-4)
   # objectuve function - negative of the log-likelihood
-  nloglik <- function(b, x, y){
+  nloglik <- function(b, x, y, alpha){
     pii <- split(as.data.frame(cbind(1, x)), bag) %>% 
       purrr::map(~sum(logit(as.matrix(.), b)*exp(alpha*logit(as.matrix(.), b)), na.rm = TRUE)/
                    sum(exp(alpha*logit(as.matrix(.), b)), na.rm = TRUE) )
@@ -75,12 +75,12 @@ softmax <- function(y, x, bag, alpha = 0, maxit = 500) {
   # init_beta <- coef(logistf(y~x))
   init_beta <- coef(glm(y~x, family = binomial(link="logit")))
   # optimize coefficients
-  beta <- optim(par = init_beta, fn = nloglik, x = x, y = y, control = list(maxit = maxit))$par
+  beta <- optim(par = init_beta, fn = nloglik, x = x, y = y, alpha = alpha, control = list(maxit = maxit))$par
   
   beta %<>% as.vector %>% set_names(c("intercept", colnames(x)))
   fit_y <- beta %>% {split(logit(cbind(1, x), .), bag)} %>%
     purrr::map_int(~1-prod(1-.) > 0.5)
-  out <- list(coeffiecents = beta, fitted = fit_y, loglik = -nloglik(beta, x, y))
+  out <- list(coeffiecents = beta, fitted = fit_y, loglik = -nloglik(beta, x, y, alpha))
   class(out) <- 'softmax'
   return(out)
 }

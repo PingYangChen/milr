@@ -37,7 +37,7 @@ summary.milr <- function(object, ...){
 #' @method print summary.milr
 #' @importFrom magrittr set_colnames
 print.summary.milr <- function(x, digits = max(3L, getOption("digits") - 2L), ...){
-  message(sprintf("Log-Likelihood: %.3f", x$loglik))
+  message(sprintf("Log-Likelihood: %.3f.", x$loglik))
   if (x$lambda == 0)
   {
     outMat <- cbind(x$beta, x$se, x$z, x$pvalue) %>% 
@@ -46,7 +46,7 @@ print.summary.milr <- function(x, digits = max(3L, getOption("digits") - 2L), ..
     printCoefmat(outMat, digits = digits)
   } else
   {
-    message(sprintf("Chosen Penalty: %.3f", x$lambda))
+    message(sprintf("Chosen Penalty: %.3f.", x$lambda))
     outMat <- cbind(x$beta) %>% 
       magrittr::set_colnames(c("Estimate"))
     message("Estimates:")
@@ -145,7 +145,7 @@ milr <- function(y, x, bag, lambda = 0, maxit = 500) {
         sum(beta_select != 0) * log(n_bag)
     }
     lambda_out <- lambda[which.min(BIC)]
-    message("The chosen penalty is", sprintf("%.4f.", lambda_out))
+    message("The chosen penalty is ", sprintf("%.4f.", lambda_out))
     beta <- CLR_lasso(y, cbind(1, x), bag, init_beta, lambda_out, alpha, maxit)
   } else
   {

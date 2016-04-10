@@ -37,19 +37,19 @@ summary.milr <- function(object, ...){
 #' @method print summary.milr
 #' @importFrom magrittr set_colnames
 print.summary.milr <- function(x, digits = max(3L, getOption("digits") - 2L), ...){
-  cat(sprintf("Log-Likelihood: %.3f\n", x$loglik))
+  message(sprintf("Log-Likelihood: %.3f", x$loglik))
   if (x$lambda == 0)
   {
     outMat <- cbind(x$beta, x$se, x$z, x$pvalue) %>% 
       magrittr::set_colnames(c("Estimate", "Std.Err", "Z value", "Pr(>z)"))
-    cat("Estimates:\n")
+    message("Estimates:")
     printCoefmat(outMat, digits = digits)
   } else
   {
-    cat(sprintf("Chosen Penalty: %.3f\n", x$lambda))
+    message(sprintf("Chosen Penalty: %.3f", x$lambda))
     outMat <- cbind(x$beta) %>% 
       magrittr::set_colnames(c("Estimate"))
-    cat("Estimates:\n")
+    message("Estimates:")
     printCoefmat(outMat, digits = digits)
   }
 }
@@ -123,7 +123,7 @@ milr <- function(y, x, bag, lambda = 0, maxit = 500) {
 
   if (length(lambda) == 1 && all(lambda == -1))
   {
-    cat("Lambda is selected automatically.\n")
+    message("Lambda is selected automatically.")
     m <- table(bag)
     zi <- tapply(y, bag, function(x) sum(x) > 0) %>% as.numeric
     lambdaMax <- sqrt(sum(m-1)) * sqrt(sum(m**(1-2*zi)))
@@ -136,7 +136,7 @@ milr <- function(y, x, bag, lambda = 0, maxit = 500) {
   n_bag <- length(unique(bag))
   if (length(lambda) > 1)
   {
-    cat("Using BIC to choose optimized penalty.\n")
+    message("Using BIC to choose optimized penalty.")
     BIC <- vector('numeric', length(lambda))
     for (i in seq_along(lambda))
     {
@@ -145,7 +145,7 @@ milr <- function(y, x, bag, lambda = 0, maxit = 500) {
         sum(beta_select != 0) * log(n_bag)
     }
     lambda_out <- lambda[which.min(BIC)]
-    cat("The chosen penalty is", sprintf("%.4f.", lambda_out), "\n")
+    message("The chosen penalty is", sprintf("%.4f.", lambda_out))
     beta <- CLR_lasso(y, cbind(1, x), bag, init_beta, lambda_out, alpha, maxit)
   } else
   {

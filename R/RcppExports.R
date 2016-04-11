@@ -19,3 +19,7 @@ CLR_lasso <- function(Z, X, ID_dbl, init_beta, lambda, alpha = 1, maxit = 500) {
     .Call('milr_CLR_lasso', PACKAGE = 'milr', Z, X, ID_dbl, init_beta, lambda, alpha, maxit)
 }
 
+softmaxlogL <- function(bag, instance, label_bag, beta, alpha) {
+    .Call('milr_softmaxlogL', PACKAGE = 'milr', bag, instance, label_bag, beta, alpha)
+}
+

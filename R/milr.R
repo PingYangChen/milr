@@ -14,7 +14,7 @@ fitted.milr <- function(object, ...){
 #' @method predict milr
 predict.milr <- function(object, newdata, bag_newdata, ...){
   return(coef(object) %>% {split(logit(cbind(1, newdata), .), bag_newdata)} %>%
-         purrr::map_int(~1-prod(1-.) > 0.5))
+           purrr::map_int(~1-prod(1-.) > 0.5))
 }
 
 #' @export
@@ -120,7 +120,7 @@ milr <- function(y, x, bag, lambda = 0, maxit = 500) {
     return(purrr::map2_dbl(split(Z, ID) %>% purrr::map(unique), pii, 
                            ~.x*log(.y)+(1-.x)*log(1-.y)) %>% sum(na.rm = TRUE))
   }
-
+  
   if (length(lambda) == 1 && all(lambda == -1))
   {
     message("Lambda is selected automatically.")
@@ -132,7 +132,7 @@ milr <- function(y, x, bag, lambda = 0, maxit = 500) {
   
   # initial value for coefficients
   # init_beta <- coef(logistf(y~x))
-  init_beta <- coef(glm(y~x, family = binomial(link="logit")))
+  init_beta <- coef(glm(y~x))
   n_bag <- length(unique(bag))
   if (length(lambda) > 1)
   {

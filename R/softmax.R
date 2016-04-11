@@ -13,8 +13,10 @@ fitted.softmax <- function(object, ...){
 #' @export
 #' @method predict softmax
 predict.softmax <- function(object, newdata, bag_newdata, ...){
-  return(coef(object) %>% {split(logit(cbind(1, newdata), .), bag_newdata)} %>%
-           purrr::map_int(~1-prod(1-.) > 0.5))
+  pii <- split(as.data.frame(cbind(1, newdata)), bag_newdata) %>% 
+    purrr::map(~sum(logit(as.matrix(.), coef(object))*exp(object$alpha*logit(as.matrix(.), coef(object))), na.rm = TRUE)/
+                 sum(exp(object$alpha*logit(as.matrix(.), coef(object))), na.rm = TRUE) )
+  return(pii > 0.5)
 }
 
 #' Multiple-instance logistic regression via softmax function
@@ -73,14 +75,18 @@ softmax <- function(y, x, bag, alpha = 0, maxit = 500) {
   
   # initial value for coefficients
   # init_beta <- coef(logistf(y~x))
-  init_beta <- coef(glm(y~x, family = binomial(link="logit")))
+  init_beta <- coef(glm(y~x))
   # optimize coefficients
-  beta <- optim(par = init_beta, fn = nloglik, x = x, y = y, alpha = alpha, control = list(maxit = maxit))$par
+  #beta <- optim(par = init_beta, fn = nloglik, x = x, y = y, alpha = alpha, control = list(maxit = maxit))$par
+  y_bag <- tapply(y, bag, function(x) sum(x) > 0)
+  bagTmp <- as.numeric(as.factor(bag))
+  beta <- optim(par = init_beta, function(b) softmaxlogL(bagTmp, cbind(1,x), y_bag, b, alpha), control = list(maxit = maxit))$par
   
   beta %<>% as.vector %>% set_names(c("intercept", colnames(x)))
-  fit_y <- beta %>% {split(logit(cbind(1, x), .), bag)} %>%
-    purrr::map_int(~1-prod(1-.) > 0.5)
-  out <- list(coeffiecents = beta, fitted = fit_y, loglik = -nloglik(beta, x, y, alpha))
+  fit_y <- (split(as.data.frame(cbind(1, x)), bag) %>% 
+              purrr::map(~sum(logit(as.matrix(.), beta)*exp(alpha*logit(as.matrix(.), beta)), na.rm = TRUE)/
+                           sum(exp(alpha*logit(as.matrix(.), beta)), na.rm = TRUE) )) > .5
+  out <- list(alpha = alpha, coeffiecents = beta, fitted = fit_y, loglik = -nloglik(beta, x, y, alpha))
   class(out) <- 'softmax'
   return(out)
 }

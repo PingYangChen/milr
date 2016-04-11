@@ -13,11 +13,11 @@ fitted.softmax <- function(object, ...){
 #' @export
 #' @method predict softmax
 predict.softmax <- function(object, newdata, bag_newdata, ...){
-  pii <- split(as.data.frame(cbind(1, newdata)), bag_newdata) %>%
+  return(split(as.data.frame(cbind(1, newdata)), bag_newdata) %>%
     purrr::map(~logit(as.matrix(.), coef(object))) %>%
-    purrr::map_dbl(~sum(. * exp(object$alpha * .), na.rm = TRUE) /
-                 sum(exp(object$alpha * .), na.rm = TRUE))
-  return(pii > 0.5)
+    purrr::map(~sum(. * exp(object$alpha * .), na.rm = TRUE) /
+                 sum(exp(object$alpha * .), na.rm = TRUE)) %>%
+    purrr::map_int(~. > 0.5))
 }
 
 #' Multiple-instance logistic regression via softmax function
@@ -90,10 +90,11 @@ softmax <- function(y, x, bag, alpha = 0, maxit = 500) {
                 control = list(maxit = maxit))$par
   
   beta %<>% as.vector %>% set_names(c("intercept", colnames(x)))
-  fit_y <- (split(as.data.frame(cbind(1, x)), bag) %>% 
-              purrr::map(~logit(as.matrix(.), beta)) %>%
-              purrr::map_dbl(~sum(. * exp(alpha * .), na.rm = TRUE) /
-                               sum(exp(alpha * .), na.rm = TRUE))) > 0.5
+  fit_y <- split(as.data.frame(cbind(1, x)), bag) %>% 
+    purrr::map(~logit(as.matrix(.), beta)) %>%
+    purrr::map_dbl(~sum(. * exp(alpha * .), na.rm = TRUE) /
+                     sum(exp(alpha * .), na.rm = TRUE)) %>%
+    purrr::map_int(~. > 0.5)
   out <- list(alpha = alpha, coeffiecents = beta, fitted = fit_y, 
               loglik = -softmaxlogL(bagTmp, cbind(1, x), y_bag, beta, alpha))
   class(out) <- 'softmax'

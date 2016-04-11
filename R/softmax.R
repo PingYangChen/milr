@@ -13,9 +13,10 @@ fitted.softmax <- function(object, ...){
 #' @export
 #' @method predict softmax
 predict.softmax <- function(object, newdata, bag_newdata, ...){
-  pii <- split(as.data.frame(cbind(1, newdata)), bag_newdata) %>% 
-    purrr::map(~sum(logit(as.matrix(.), coef(object))*exp(object$alpha*logit(as.matrix(.), coef(object))), na.rm = TRUE)/
-                 sum(exp(object$alpha*logit(as.matrix(.), coef(object))), na.rm = TRUE) )
+  pii <- split(as.data.frame(cbind(1, newdata)), bag_newdata) %>%
+    purrr::map(~logit(as.matrix(.), coef(object))) %>%
+    purrr::map_dbl(~sum(. * exp(object$alpha * .), na.rm = TRUE) /
+                 sum(exp(object$alpha * .), na.rm = TRUE))
   return(pii > 0.5)
 }
 
@@ -64,29 +65,37 @@ softmax <- function(y, x, bag, alpha = 0, maxit = 500) {
               all(is.finite(y)), is.numeric(y), all(is.finite(x)), is.numeric(x),  
               alpha >= 0, is.finite(alpha), is.numeric(alpha), is.finite(maxit), is.numeric(maxit), 
               abs(maxit - floor(maxit)) < 1e-4)
+  
+  ## old objectuve function code
   # objectuve function - negative of the log-likelihood
-  nloglik <- function(b, x, y, alpha){
-    pii <- split(as.data.frame(cbind(1, x)), bag) %>% 
-      purrr::map(~sum(logit(as.matrix(.), b)*exp(alpha*logit(as.matrix(.), b)), na.rm = TRUE)/
-                   sum(exp(alpha*logit(as.matrix(.), b)), na.rm = TRUE) )
-    return(-1*(purrr::map2_dbl(split(y, bag) %>% purrr::map(unique), pii, 
-                               ~.x*log(.y)+(1-.x)*log(1-.y)) %>% sum(na.rm = TRUE)))
-  }
+  # nloglik <- function(b, x, y, alpha){
+  #   pii <- split(as.data.frame(cbind(1, x)), bag) %>% 
+  #     purrr::map(~logit(as.matrix(.), b)) %>%
+  #     purrr::map_dbl(~sum(. * exp(alpha * .), na.rm = TRUE) /
+  #                      sum(exp(alpha * .), na.rm = TRUE))
+  #   return(-1*(purrr::map2_dbl(split(y, bag) %>% purrr::map(unique), pii, 
+  #                              ~.x*log(.y)+(1-.x)*log(1-.y)) %>% sum(na.rm = TRUE)))
+  # }
   
   # initial value for coefficients
   # init_beta <- coef(logistf(y~x))
   init_beta <- coef(glm(y~x))
   # optimize coefficients
-  #beta <- optim(par = init_beta, fn = nloglik, x = x, y = y, alpha = alpha, control = list(maxit = maxit))$par
+  ## old optim code
+  #beta <- optim(par = init_beta, fn = nloglik, x = x, y = y, alpha = alpha, 
+  #              control = list(maxit = maxit))$par
   y_bag <- tapply(y, bag, function(x) sum(x) > 0)
   bagTmp <- as.numeric(as.factor(bag))
-  beta <- optim(par = init_beta, function(b) softmaxlogL(bagTmp, cbind(1,x), y_bag, b, alpha), control = list(maxit = maxit))$par
+  beta <- optim(par = init_beta, function(b) softmaxlogL(bagTmp, cbind(1,x), y_bag, b, alpha), 
+                control = list(maxit = maxit))$par
   
   beta %<>% as.vector %>% set_names(c("intercept", colnames(x)))
   fit_y <- (split(as.data.frame(cbind(1, x)), bag) %>% 
-              purrr::map(~sum(logit(as.matrix(.), beta)*exp(alpha*logit(as.matrix(.), beta)), na.rm = TRUE)/
-                           sum(exp(alpha*logit(as.matrix(.), beta)), na.rm = TRUE) )) > .5
-  out <- list(alpha = alpha, coeffiecents = beta, fitted = fit_y, loglik = -nloglik(beta, x, y, alpha))
+              purrr::map(~logit(as.matrix(.), beta)) %>%
+              purrr::map_dbl(~sum(. * exp(alpha * .), na.rm = TRUE) /
+                               sum(exp(alpha * .), na.rm = TRUE))) > 0.5
+  out <- list(alpha = alpha, coeffiecents = beta, fitted = fit_y, 
+              loglik = -softmaxlogL(bagTmp, cbind(1, x), y_bag, beta, alpha))
   class(out) <- 'softmax'
   return(out)
 }

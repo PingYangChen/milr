@@ -24,7 +24,7 @@ If \code{lambda} = 0, then the penalty will be chosen automatically.}
 \item{maxit}{An integer, the maximum iteration for EM algorithm.}
 }
 \value{
-An list includes BIC, chosen lambda, coefficients, fitted values, log-likelihood and variances of coefficients.
+An list includes deviance (not cv deviance), BIC, chosen lambda, coefficients, fitted values, log-likelihood and variances of coefficients.
 }
 \description{
 Please refer to \link{milr-package}.

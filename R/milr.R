@@ -77,7 +77,7 @@ cvIndex_f <- function(n, fold){
 #' @param lambdaCriterion A string, the criterion to choose the penalty term. It can be "BIC" or "deviance".
 #' @param nfold An integer, the number of fold for cross-validation to choose the penalty term. (only used in lambdaCriterion = "dev".)
 #' @param maxit An integer, the maximum iteration for EM algorithm.
-#' @return An list includes BIC, chosen lambda, coefficients, fitted values, log-likelihood and variances of coefficients.
+#' @return An list includes deviance (not cv deviance), BIC, chosen lambda, coefficients, fitted values, log-likelihood and variances of coefficients.
 #' @examples
 #' set.seed(100)
 #' beta <- runif(5, -5, 5)

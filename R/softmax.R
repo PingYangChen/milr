@@ -14,10 +14,10 @@ fitted.softmax <- function(object, ...){
 #' @method predict softmax
 predict.softmax <- function(object, newdata, bag_newdata, ...){
   return(split(as.data.frame(cbind(1, newdata)), bag_newdata) %>%
-    purrr::map(~logit(as.matrix(.), coef(object))) %>%
-    purrr::map(~sum(. * exp(object$alpha * .), na.rm = TRUE) /
-                 sum(exp(object$alpha * .), na.rm = TRUE)) %>%
-    purrr::map_int(~. > 0.5))
+           purrr::map(~logit(as.matrix(.), coef(object))) %>%
+           purrr::map(~sum(. * exp(object$alpha * .), na.rm = TRUE) /
+                        sum(exp(object$alpha * .), na.rm = TRUE)) %>%
+           purrr::map_int(~. > 0.5))
 }
 
 #' Multiple-instance logistic regression via softmax function
@@ -29,7 +29,7 @@ predict.softmax <- function(object, newdata, bag_newdata, ...){
 #' @param x The design matrix. The number of rows of x must be equal to the length of y.
 #' @param bag A vector, bag id.
 #' @param alpha A non-negative realnumber, the softmax parameter. 
-#' @param maxit An integer, the maximum iteration for optimization algorithm (Nelder and Mead, 1965).
+#' @param ... Arguments to be passed to the method, optim.
 #' @return An list includes coefficients and fitted values.
 #' @examples
 #' set.seed(100)
@@ -52,7 +52,7 @@ predict.softmax <- function(object, newdata, bag_newdata, ...){
 #' @importFrom purrr map map_int map2_dbl
 #' @importFrom logistf logistf
 #' @export
-softmax <- function(y, x, bag, alpha = 0, maxit = 500) {
+softmax <- function(y, x, bag, alpha = 0, ...) {
   # if x is vector, transform it to matrix
   if (is.vector(x))
     x <- matrix(x, ncol = 1)
@@ -63,8 +63,7 @@ softmax <- function(y, x, bag, alpha = 0, maxit = 500) {
   # input check
   assert_that(length(unique(y)) == 2, length(y) == nrow(x),
               all(is.finite(y)), is.numeric(y), all(is.finite(x)), is.numeric(x),  
-              alpha >= 0, is.finite(alpha), is.numeric(alpha), is.finite(maxit), is.numeric(maxit), 
-              abs(maxit - floor(maxit)) < 1e-4)
+              alpha >= 0, is.finite(alpha), is.numeric(alpha))
   
   ## old objectuve function code
   # objectuve function - negative of the log-likelihood
@@ -81,13 +80,9 @@ softmax <- function(y, x, bag, alpha = 0, maxit = 500) {
   # init_beta <- coef(logistf(y~x))
   init_beta <- coef(glm(y~x))
   # optimize coefficients
-  ## old optim code
-  #beta <- optim(par = init_beta, fn = nloglik, x = x, y = y, alpha = alpha, 
-  #              control = list(maxit = maxit))$par
   y_bag <- tapply(y, bag, function(x) sum(x) > 0)
   bagTmp <- as.numeric(as.factor(bag))
-  beta <- optim(par = init_beta, function(b) softmaxlogL(bagTmp, cbind(1,x), y_bag, b, alpha), 
-                control = list(maxit = maxit))$par
+  beta <- optim(par = init_beta, fn = function(b) softmaxlogL(bagTmp, cbind(1,x), y_bag, b, alpha), ...)$par
   
   beta %<>% as.vector %>% set_names(c("intercept", colnames(x)))
   fit_y <- split(as.data.frame(cbind(1, x)), bag) %>% 

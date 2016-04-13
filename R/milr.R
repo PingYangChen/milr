@@ -74,7 +74,7 @@ cvIndex_f <- function(n, fold){
 #' @param bag A vector, bag id.
 #' @param lambda The penalty for LASSO. Default is 0 (not use LASSO). If \code{lambda} is vector, the penalty will be chosen by BIC.
 #'   If \code{lambda} = 0, then the penalty will be chosen automatically.
-#' @param lambdaCriterion A string, the criterion to choose the penalty term. It can be "BIC" or "dev".
+#' @param lambdaCriterion A string, the criterion to choose the penalty term. It can be "BIC" or "deviance".
 #' @param nfold An integer, the number of fold for cross-validation to choose the penalty term. (only used in lambdaCriterion = "dev".)
 #' @param maxit An integer, the maximum iteration for EM algorithm.
 #' @return An list includes BIC, chosen lambda, coefficients, fitted values, log-likelihood and variances of coefficients.
@@ -107,7 +107,7 @@ cvIndex_f <- function(n, fold){
 #' 
 #' # use cv in auto-tuning
 #' milr_result <- milr(trainData$Z, trainData$X, trainData$ID, 
-#'                     lambda = -1, lambdaCriterion = "dev")
+#'                     lambda = -1, lambdaCriterion = "deviance")
 #' coef(milr_result)      # coefficients
 #' fitted(milr_result)    # fitted values
 #' summary(milr_result)   # summary milr
@@ -135,7 +135,7 @@ milr <- function(y, x, bag, lambda = 0, lambdaCriterion = "BIC", nfold = 10, max
               length(lambda) >= 1, all(is.finite(lambda)), is.numeric(lambda), 
               is.finite(alpha), is.numeric(alpha), is.finite(maxit), is.numeric(maxit), 
               abs(maxit - floor(maxit)) < 1e-4, nfold < nrow(x),
-              lambdaCriterion %in% c("dev", "BIC"))
+              lambdaCriterion %in% c("deviance", "BIC"))
   loglik <- function(b, Z, X, ID){
     pii <- split(as.data.frame(X), ID) %>% 
       purrr::map(~1-prod(1-logit(as.matrix(.), b)))
@@ -145,7 +145,7 @@ milr <- function(y, x, bag, lambda = 0, lambdaCriterion = "BIC", nfold = 10, max
   
   if (length(lambda) == 1 && all(lambda == -1))
   {
-    message("Lambda is selected automatically.")
+    message("The penalty term is selected automatically.")
     m <- table(bag)
     zi <- tapply(y, bag, function(x) sum(x) > 0) %>% as.numeric
     lambdaMax <- sqrt(sum(m-1)) * sqrt(sum(m**(1-2*zi)))
@@ -163,44 +163,45 @@ milr <- function(y, x, bag, lambda = 0, lambdaCriterion = "BIC", nfold = 10, max
     beta_history <- matrix(NA, ncol(x) + 1, length(lambda) + 1)
     beta_history[ , 1] <- init_beta
     
-    bagLvl <- tapply(y, bag, sum) %>% {as.integer(. > 0)}
-    if (nfold > min(table(bagLvl)))
-    {
-      message("nfold is bigger than the number of size of one class.")
-      message(sprintf("Therefore, nfold is changed to %i.", min(table(bagLvl))))
-      nfold <- min(table(bagLvl))
-    }
-    
     if (lambdaCriterion == "BIC")
     {
+      dev <- vector('numeric', length(lambda))
       BIC <- vector('numeric', length(lambda))
       for (i in seq_along(lambda))
       {
         beta_history[, i + 1] <- CLR_lasso(y, cbind(1, x), bag, beta_history[, i], lambda[i])
-        BIC[i] <- -2 * loglik(beta_history[, i + 1], y, cbind(1, x), bag) +
-          sum(beta_history[, i + 1] != 0) * log(n_bag)
+        dev[i] <- -2 * loglik(beta_history[, i + 1], y, cbind(1, x), bag)
+        BIC[i] <- dev[i] + sum(beta_history[, i + 1] != 0) * log(n_bag)
       }
       locMin <- which.min(BIC)
-      dev <- NULL
-    } else if (lambdaCriterion == "dev")
+    } else if (lambdaCriterion == "deviance")
     {
+      bagLvl <- tapply(y, bag, sum) %>% {as.integer(. > 0)}
+      if (nfold > min(table(bagLvl)))
+      {
+        message("nfold is bigger than the number of size of one class.")
+        message(sprintf("Therefore, nfold is changed to %i.", min(table(bagLvl))))
+        nfold <- min(table(bagLvl))
+      }
+      
       cvIndex_bag_p <- cvIndex_f(sum(bagLvl == 1), nfold)
       cvIndex_bag_n <- cvIndex_f(sum(bagLvl == 0), nfold)
       cvIndex_sample <- purrr::map(1:nfold, ~c(which(bagLvl == 1)[which(cvIndex_bag_p == .)],
                                                which(bagLvl == 0)[which(cvIndex_bag_n == .)])) %>%
         purrr::map(~which(bag %in% unique_bag[.]))
       dev <- matrix(NA, length(lambda), nfold)
+      cv_betas <- purrr::map(1:nfold, ~beta_history)
       for (i in seq_along(lambda))
       {
         for (j in 1:nfold)
         {
           trainSetIndex <- do.call(c, cvIndex_sample[setdiff(1:nfold, j)])
-          beta_history[, i + 1] <- CLR_lasso(y[trainSetIndex], cbind(1, x[trainSetIndex, ]), 
-                                                    bag[trainSetIndex], beta_history[, i], lambda[i])
-          testSetIndex <- cvIndex_sample[[j]]
-          dev[i, j] <- -2 * loglik(beta_history[, i + 1], y[cvIndex_sample[[j]]], 
+          cv_betas[[j]][ , i + 1] <- CLR_lasso(y[trainSetIndex], cbind(1, x[trainSetIndex, ]), 
+                                bag[trainSetIndex], cv_betas[[j]][ , i], lambda[i])
+          dev[i, j] <- -2 * loglik(cv_betas[[j]][ , i + 1], y[cvIndex_sample[[j]]], 
                                    cbind(1, x[cvIndex_sample[[j]], ]), bag[cvIndex_sample[[j]]])
         }
+        beta_history[, i + 1] <- CLR_lasso(y, cbind(1, x), bag, beta_history[, i], lambda[i])
       }
       locMin <- which.min(rowMeans(dev))
       BIC <- NULL
@@ -222,7 +223,7 @@ milr <- function(y, x, bag, lambda = 0, lambdaCriterion = "BIC", nfold = 10, max
     bateVar = -diag(solve(numDeriv::hessian(function(b) loglik(b, y, cbind(1, x), bag), beta)))
   else
     bateVar = NULL
-  out <- list(dev = dev, BIC = BIC, lambda_chosen = lambda_out, 
+  out <- list(deviance = dev, BIC = BIC, lambda_chosen = lambda_out, 
               coeffiecents = beta, fitted = fit_y, loglik = loglik(beta, y, cbind(1, x), bag),
               var = bateVar)
   class(out) <- 'milr'

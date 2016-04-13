@@ -17,7 +17,7 @@ milr(y, x, bag, lambda = 0, lambdaCriterion = "BIC", nfold = 10,
 \item{lambda}{The penalty for LASSO. Default is 0 (not use LASSO). If \code{lambda} is vector, the penalty will be chosen by BIC.
 If \code{lambda} = 0, then the penalty will be chosen automatically.}
 
-\item{lambdaCriterion}{A string, the criterion to choose the penalty term. It can be "BIC" or "dev".}
+\item{lambdaCriterion}{A string, the criterion to choose the penalty term. It can be "BIC" or "deviance".}
 
 \item{nfold}{An integer, the number of fold for cross-validation to choose the penalty term. (only used in lambdaCriterion = "dev".)}
 
@@ -58,7 +58,7 @@ predict(milr_result, testData$X, testData$ID) # predicted label
 
 # use cv in auto-tuning
 milr_result <- milr(trainData$Z, trainData$X, trainData$ID, 
-                    lambda = -1, lambdaCriterion = "dev")
+                    lambda = -1, lambdaCriterion = "deviance")
 coef(milr_result)      # coefficients
 fitted(milr_result)    # fitted values
 summary(milr_result)   # summary milr

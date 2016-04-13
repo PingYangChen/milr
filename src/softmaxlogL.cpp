@@ -7,7 +7,7 @@ using namespace arma;
 
 // [[Rcpp::export]]
 double softmaxlogL(arma::vec bag, arma::mat instance, arma::vec label_bag, arma::vec beta, double alpha){
-  vec p_instance = pow(1.0 + exp(-X*beta), -1.0);
+  vec p_instance = pow(1.0 + exp(-instance * beta), -1.0);
   p_instance.elem(find(p_instance < 1e-7)).fill(1e-7);
   p_instance.elem(find(p_instance > 1-1e-7)).fill(1-1e-7);
   vec p_bag = zeros<vec>(label_bag.n_elem);

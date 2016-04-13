@@ -35,7 +35,7 @@ predict.softmax <- function(object, newdata, bag_newdata, ...){
 #' set.seed(100)
 #' beta <- runif(10, -5, 5)
 #' trainData <- DGP(70, 3, beta)
-#' testData <- DGP(30, 3, beta) 
+#' testData <- DGP(30, 3, beta)
 #' # Fit softmax-MILR model S(0)
 #' softmax_result <- softmax(trainData$Z, trainData$X, trainData$ID, alpha = 0)
 #' coef(softmax_result)      # coefficients

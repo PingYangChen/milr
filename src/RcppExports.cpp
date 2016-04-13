@@ -36,17 +36,17 @@ BEGIN_RCPP
 END_RCPP
 }
 // softmaxlogL
-double softmaxlogL(arma::vec bag, arma::mat instance, arma::vec label_bag, arma::vec beta, double alpha);
-RcppExport SEXP milr_softmaxlogL(SEXP bagSEXP, SEXP instanceSEXP, SEXP label_bagSEXP, SEXP betaSEXP, SEXP alphaSEXP) {
+double softmaxlogL(const arma::vec& bag, const arma::mat& X, const arma::vec& Z, const arma::vec& beta, const double& alpha);
+RcppExport SEXP milr_softmaxlogL(SEXP bagSEXP, SEXP XSEXP, SEXP ZSEXP, SEXP betaSEXP, SEXP alphaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< arma::vec >::type bag(bagSEXP);
-    Rcpp::traits::input_parameter< arma::mat >::type instance(instanceSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type label_bag(label_bagSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type beta(betaSEXP);
-    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
-    __result = Rcpp::wrap(softmaxlogL(bag, instance, label_bag, beta, alpha));
+    Rcpp::traits::input_parameter< const arma::vec& >::type bag(bagSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type Z(ZSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< const double& >::type alpha(alphaSEXP);
+    __result = Rcpp::wrap(softmaxlogL(bag, X, Z, beta, alpha));
     return __result;
 END_RCPP
 }

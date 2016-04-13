@@ -23,17 +23,21 @@ arma::vec logit(const arma::mat& X, const arma::vec& beta){
 // q is the expected value of the instance (Y) given that the label (Z) is 1
 arma::vec q(const arma::vec& p_Y, const arma::uvec& ID){
   // p_bag is P(label of bag_i is 1) = 1-prod(1-p_ij)
-  uvec ID_table = unique(ID); 
+  uvec ID_table = sort(unique(ID));
   vec p_bag = ones<vec>(ID_table.n_elem);
-  // assuming that the bags(ID) are labeled from 1 to the number of bags and are sorted
+  uvec loc_bag = zeros<uvec>(ID.n_elem), tmp;
   for(uword i = 0; i < ID_table.size(); i++)
-    p_bag(ID_table(i)) = prod(1.0 - p_Y.elem(find(ID == ID_table(i))));
+  {
+    tmp = find(ID == ID_table(i));
+    loc_bag.elem(tmp).fill(i);
+    p_bag(i) = prod(1.0 - p_Y.elem(tmp));
+  }
   p_bag = 1 - p_bag;
   
   vec q = p_Y;
   q.elem(find(p_Y == 0.0)).zeros();
   uvec loc_nonzero_q = find(q > 0.0);
-  q.elem(loc_nonzero_q) /= p_bag.elem(ID.elem(loc_nonzero_q));
+  q.elem(loc_nonzero_q) /= p_bag.elem(loc_bag.elem(loc_nonzero_q));
   q.elem(find_nonfinite(q)).ones();
   return(q);
 }

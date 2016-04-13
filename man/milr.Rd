@@ -4,7 +4,8 @@
 \alias{milr}
 \title{Maximum likelihood estimation of multiple-instance logistic regression with LASSO penalty}
 \usage{
-milr(y, x, bag, lambda = 0, maxit = 500)
+milr(y, x, bag, lambda = 0, nfold = 10, lambdaCriterion = "BIC",
+  maxit = 500)
 }
 \arguments{
 \item{y}{A vector. Binay response.}
@@ -15,6 +16,10 @@ milr(y, x, bag, lambda = 0, maxit = 500)
 
 \item{lambda}{The penalty for LASSO. Default is 0 (not use LASSO). If \code{lambda} is vector, the penalty will be chosen by BIC.
 If \code{lambda} = 0, then the penalty will be chosen automatically.}
+
+\item{nfold}{An integer, the number of fold for cross-validation to choose the penalty term. (only used in lambdaCriterion = "dev".)}
+
+\item{lambdaCriterion}{A string, the criterion to choose the penalty term. It can be "BIC" or "dev".}
 
 \item{maxit}{An integer, the maximum iteration for EM algorithm.}
 }

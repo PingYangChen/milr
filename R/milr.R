@@ -74,8 +74,8 @@ cvIndex_f <- function(n, fold){
 #' @param bag A vector, bag id.
 #' @param lambda The penalty for LASSO. Default is 0 (not use LASSO). If \code{lambda} is vector, the penalty will be chosen by BIC.
 #'   If \code{lambda} = 0, then the penalty will be chosen automatically.
-#' @param nfold An integer, the number of fold for cross-validation to choose the penalty term. (only used in lambdaCriterion = "dev".)
 #' @param lambdaCriterion A string, the criterion to choose the penalty term. It can be "BIC" or "dev".
+#' @param nfold An integer, the number of fold for cross-validation to choose the penalty term. (only used in lambdaCriterion = "dev".)
 #' @param maxit An integer, the maximum iteration for EM algorithm.
 #' @return An list includes BIC, chosen lambda, coefficients, fitted values, log-likelihood and variances of coefficients.
 #' @examples
@@ -104,6 +104,14 @@ cvIndex_f <- function(n, fold){
 #' fitted(milr_result)    # fitted values
 #' summary(milr_result)   # summary milr
 #' predict(milr_result, testData$X, testData$ID) # predicted label
+#' 
+#' # use cv in auto-tuning
+#' milr_result <- milr(trainData$Z, trainData$X, trainData$ID, 
+#'                     lambda = -1, lambdaCriterion = "dev")
+#' coef(milr_result)      # coefficients
+#' fitted(milr_result)    # fitted values
+#' summary(milr_result)   # summary milr
+#' predict(milr_result, testData$X, testData$ID) # predicted label
 #' @importFrom magrittr set_names
 #' @importFrom purrr map map_int map2_dbl map_dbl
 #' @importFrom logistf logistf
@@ -111,7 +119,7 @@ cvIndex_f <- function(n, fold){
 #' @name milr
 #' @rdname milr
 #' @export
-milr <- function(y, x, bag, lambda = 0, nfold = 10, lambdaCriterion = "BIC", maxit = 500) {
+milr <- function(y, x, bag, lambda = 0, lambdaCriterion = "BIC", nfold = 10, maxit = 500) {
   # if x is vector, transform it to matrix
   if (is.vector(x))
     x <- matrix(x, ncol = 1)
@@ -168,7 +176,6 @@ milr <- function(y, x, bag, lambda = 0, nfold = 10, lambdaCriterion = "BIC", max
       BIC <- vector('numeric', length(lambda))
       for (i in seq_along(lambda))
       {
-        # without cv
         beta_history[, i + 1] <- CLR_lasso(y, cbind(1, x), bag, beta_history[, i], lambda[i])
         BIC[i] <- -2 * loglik(beta_history[, i + 1], y, cbind(1, x), bag) +
           sum(beta_history[, i + 1] != 0) * log(n_bag)
@@ -188,7 +195,7 @@ milr <- function(y, x, bag, lambda = 0, nfold = 10, lambdaCriterion = "BIC", max
         for (j in 1:nfold)
         {
           trainSetIndex <- do.call(c, cvIndex_sample[setdiff(1:nfold, j)])
-          beta_history[, i + 1] <- milr:::CLR_lasso(y[trainSetIndex], cbind(1, x[trainSetIndex, ]), 
+          beta_history[, i + 1] <- CLR_lasso(y[trainSetIndex], cbind(1, x[trainSetIndex, ]), 
                                                     bag[trainSetIndex], beta_history[, i], lambda[i])
           testSetIndex <- cvIndex_sample[[j]]
           dev[i, j] <- -2 * loglik(beta_history[, i + 1], y[cvIndex_sample[[j]]], 

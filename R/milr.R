@@ -159,6 +159,7 @@ milr <- function(y, x, bag, lambda = 0, lambdaCriterion = "BIC", nfold = 10, max
   n_bag <- length(unique_bag)
   if (length(lambda) > 1)
   {
+    # save the history of betas along lambda
     message(sprintf("Using the criterion %s to choose optimized penalty.", lambdaCriterion))
     beta_history <- matrix(NA, ncol(x) + 1, length(lambda) + 1)
     beta_history[ , 1] <- init_beta
@@ -176,35 +177,43 @@ milr <- function(y, x, bag, lambda = 0, lambdaCriterion = "BIC", nfold = 10, max
       locMin <- which.min(BIC)
     } else if (lambdaCriterion == "deviance")
     {
+      # calculate the bag label
       bagLvl <- tapply(y, bag, sum) %>% {as.integer(. > 0)}
+      # avoid the sample size of one class is less than nfold to retrun error in cvIndex_f.
       if (nfold > min(table(bagLvl)))
       {
         message("nfold is bigger than the number of size of one class.")
         message(sprintf("Therefore, nfold is changed to %i.", min(table(bagLvl))))
         nfold <- min(table(bagLvl))
       }
-      
+      # stratified sampling for cv on bag labels
       cvIndex_bag_p <- cvIndex_f(sum(bagLvl == 1), nfold)
       cvIndex_bag_n <- cvIndex_f(sum(bagLvl == 0), nfold)
+      # convert the cv index on bag labels to cv index on samples
       cvIndex_sample <- purrr::map(1:nfold, ~c(which(bagLvl == 1)[which(cvIndex_bag_p == .)],
                                                which(bagLvl == 0)[which(cvIndex_bag_n == .)])) %>%
         purrr::map(~which(bag %in% unique_bag[.]))
-      dev <- matrix(NA, length(lambda), nfold)
+      dev_cv <- matrix(NA, length(lambda), nfold)
+      dev <- vector('numeric', length(lambda))
+      BIC <- vector('numeric', length(lambda))
       cv_betas <- purrr::map(1:nfold, ~beta_history)
       for (i in seq_along(lambda))
       {
+        # CV to calculate the deviances
         for (j in 1:nfold)
         {
           trainSetIndex <- do.call(c, cvIndex_sample[setdiff(1:nfold, j)])
           cv_betas[[j]][ , i + 1] <- CLR_lasso(y[trainSetIndex], cbind(1, x[trainSetIndex, ]), 
                                 bag[trainSetIndex], cv_betas[[j]][ , i], lambda[i])
-          dev[i, j] <- -2 * loglik(cv_betas[[j]][ , i + 1], y[cvIndex_sample[[j]]], 
+          dev_cv[i, j] <- -2 * loglik(cv_betas[[j]][ , i + 1], y[cvIndex_sample[[j]]], 
                                    cbind(1, x[cvIndex_sample[[j]], ]), bag[cvIndex_sample[[j]]])
         }
+        # calculate the beta under lambda
         beta_history[, i + 1] <- CLR_lasso(y, cbind(1, x), bag, beta_history[, i], lambda[i])
+        dev[i] <- -2 * loglik(beta_history[, i + 1], y, cbind(1, x), bag)
+        BIC[i] <- dev[i] + sum(beta_history[, i + 1] != 0) * log(n_bag)
       }
-      locMin <- which.min(rowMeans(dev))
-      BIC <- NULL
+      locMin <- which.min(rowMeans(dev_cv))
     }
     lambda_out <- lambda[locMin]
     message(sprintf("The chosen penalty throuth %s is %.4f.", lambdaCriterion, lambda[locMin]))
@@ -216,9 +225,12 @@ milr <- function(y, x, bag, lambda = 0, lambdaCriterion = "BIC", nfold = 10, max
     BIC <- dev + sum(beta != 0) * log(n_bag)
     lambda_out <- lambda
   }
+  # return beta with names
   beta %<>% as.vector %>% set_names(c("intercept", colnames(x)))
+  # fitted response
   fit_y <- beta %>% {split(logit(cbind(1, x), .), bag)} %>%
     purrr::map_int(~1-prod(1-.) > 0.5)
+  # calculate the hessian matrix when without lasso
   if (lambda_out == 0)
     bateVar = -diag(solve(numDeriv::hessian(function(b) loglik(b, y, cbind(1, x), bag), beta)))
   else

@@ -4,7 +4,7 @@
 \alias{softmax}
 \title{Multiple-instance logistic regression via softmax function}
 \usage{
-softmax(y, x, bag, alpha = 0, maxit = 500)
+softmax(y, x, bag, alpha = 0, ...)
 }
 \arguments{
 \item{y}{A vector. Binay response.}
@@ -15,7 +15,7 @@ softmax(y, x, bag, alpha = 0, maxit = 500)
 
 \item{alpha}{A non-negative realnumber, the softmax parameter.}
 
-\item{maxit}{An integer, the maximum iteration for optimization algorithm (Nelder and Mead, 1965).}
+\item{...}{Arguments to be passed to the method, optim.}
 }
 \value{
 An list includes coefficients and fitted values.
@@ -28,7 +28,7 @@ through a softmax function (Xu and Frank, 2004; Ray and Craven, 2005).
 set.seed(100)
 beta <- runif(10, -5, 5)
 trainData <- DGP(70, 3, beta)
-testData <- DGP(30, 3, beta) 
+testData <- DGP(30, 3, beta)
 # Fit softmax-MILR model S(0)
 softmax_result <- softmax(trainData$Z, trainData$X, trainData$ID, alpha = 0)
 coef(softmax_result)      # coefficients

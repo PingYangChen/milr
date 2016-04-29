@@ -20,15 +20,15 @@ DGP <- function(n, m, beta){
   p <- length(beta)
   if (length(m) < n)
     m <- rep(m, length = n)
-  X <- scale(matrix(rnorm(sum(m)*p),sum(m),p)) %>% 
-    matrix(nrow(.), ncol(.))  # remove attributes
+  X <- scale(matrix(rnorm(sum(m)*p),sum(m),p)) %>>%
+    `attr<-`("scaled:center", NULL) %>>% `attr<-`("scaled:scale", NULL) # remove attributes
   X[ ,1] <- rep(1, nrow(X))
-  Y <- logit(X, beta) %>% rbinom(sum(m), 1, .)
+  Y <- logit(X, beta) %>>% (rbinom(sum(m), 1, .))
   ID <- rep(1:n, m)
-  Z <- split(Y, ID) %>% map(~rep(any(. == 1), length(.))) %>% unlist %>% as.integer
-  if(all(Z == 1))
+  Z <- split(Y, ID) %>>% map(~rep(any(. == 1), length(.))) %>>% unlist %>>% as.integer
+  if (all(Z == 1))
     Z[ID == sample(1:n, 1)] <- 0
-  if(all(Z == 0))
+  if (all(Z == 0))
     Z[ID == sample(1:n, 1)] <- 1
   return(list(Z = Z, X = X[ , 2:ncol(X)], ID = ID))
 }

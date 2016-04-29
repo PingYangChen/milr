@@ -21,7 +21,8 @@ softmax(y, x, bag, alpha = 0, ...)
 An list includes coefficients and fitted values.
 }
 \description{
-This function calculates the alternative maximum likelihood estimation for multiple-instance logistic regression
+This function calculates the alternative maximum likelihood estimation for 
+multiple-instance logistic regression
 through a softmax function (Xu and Frank, 2004; Ray and Craven, 2005).
 }
 \examples{
@@ -39,8 +40,11 @@ softmax_result <- softmax(trainData$Z, trainData$X, trainData$ID, alpha = 3)
 }
 \references{
 \enumerate{
- \item S. Ray, and M. Craven. (2005) Supervised versus multiple instance learning: An empirical comparsion. in Proceedings of the 22nd International Conference on Machine Learnings, ACM, 697--704.
- \item X. Xu, and E. Frank. (2004) Logistic regression and boosting for labeled bags of instances. in Advances in Knowledge Discovery and Data Mining, Springer, 272--281.
+ \item S. Ray, and M. Craven. (2005) Supervised versus multiple instance learning: 
+ An empirical comparsion. in Proceedings of the 22nd International Conference on 
+ Machine Learnings, ACM, 697--704.
+ \item X. Xu, and E. Frank. (2004) Logistic regression and boosting for labeled bags 
+ of instances. in Advances in Knowledge Discovery and Data Mining, Springer, 272--281.
 }
 }
 

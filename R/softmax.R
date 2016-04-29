@@ -13,16 +13,17 @@ fitted.softmax <- function(object, ...){
 #' @export
 #' @method predict softmax
 predict.softmax <- function(object, newdata, bag_newdata, ...){
-  return(split(as.data.frame(cbind(1, newdata)), bag_newdata) %>%
-           purrr::map(~logit(as.matrix(.), coef(object))) %>%
+  return(split(as.data.frame(cbind(1, newdata)), bag_newdata) %>>%
+           purrr::map(~logit(as.matrix(.), coef(object))) %>>%
            purrr::map(~sum(. * exp(object$alpha * .), na.rm = TRUE) /
-                        sum(exp(object$alpha * .), na.rm = TRUE)) %>%
+                        sum(exp(object$alpha * .), na.rm = TRUE)) %>>%
            purrr::map_int(~. > 0.5))
 }
 
 #' Multiple-instance logistic regression via softmax function
 #'
-#' This function calculates the alternative maximum likelihood estimation for multiple-instance logistic regression
+#' This function calculates the alternative maximum likelihood estimation for 
+#' multiple-instance logistic regression
 #' through a softmax function (Xu and Frank, 2004; Ray and Craven, 2005).
 #'
 #' @param y A vector. Binay response.
@@ -45,19 +46,20 @@ predict.softmax <- function(object, newdata, bag_newdata, ...){
 #' softmax_result <- softmax(trainData$Z, trainData$X, trainData$ID, alpha = 3)
 #' @references
 #' \enumerate{
-#'	 \item S. Ray, and M. Craven. (2005) Supervised versus multiple instance learning: An empirical comparsion. in Proceedings of the 22nd International Conference on Machine Learnings, ACM, 697--704.
-#'	 \item X. Xu, and E. Frank. (2004) Logistic regression and boosting for labeled bags of instances. in Advances in Knowledge Discovery and Data Mining, Springer, 272--281.
+#'	 \item S. Ray, and M. Craven. (2005) Supervised versus multiple instance learning: 
+#'	 An empirical comparsion. in Proceedings of the 22nd International Conference on 
+#'	 Machine Learnings, ACM, 697--704.
+#'	 \item X. Xu, and E. Frank. (2004) Logistic regression and boosting for labeled bags 
+#'	 of instances. in Advances in Knowledge Discovery and Data Mining, Springer, 272--281.
 #' }
-#' @importFrom magrittr set_names
 #' @importFrom purrr map map_int map2_dbl
-#' @importFrom logistf logistf
 #' @export
 softmax <- function(y, x, bag, alpha = 0, ...) {
   # if x is vector, transform it to matrix
   if (is.vector(x))
     x <- matrix(x, ncol = 1)
   if (!is.matrix(x))
-    x %<>% as.matrix
+    x <- as.matrix(x)
   if (!all(y %in% c(0, 1)))
     stop('y must be 0 and 1.')
   # input check
@@ -77,18 +79,19 @@ softmax <- function(y, x, bag, alpha = 0, ...) {
   # }
   
   # initial value for coefficients
-  # init_beta <- coef(logistf(y~x))
   init_beta <- coef(glm(y~x))
   # optimize coefficients
   y_bag <- tapply(y, bag, function(x) sum(x) > 0)
   bagTmp <- as.numeric(as.factor(bag))
-  beta <- optim(par = init_beta, fn = function(b) softmaxlogL(bagTmp, cbind(1,x), y_bag, b, alpha), ...)$par
+  beta <- optim(par = init_beta, fn = function(b){
+    softmaxlogL(bagTmp, cbind(1,x), y_bag, b, alpha)
+  }, ...)$par
   
-  beta %<>% as.vector %>% set_names(c("intercept", colnames(x)))
-  fit_y <- split(as.data.frame(cbind(1, x)), bag) %>% 
-    purrr::map(~logit(as.matrix(.), beta)) %>%
+  beta <- beta %>>% as.vector %>>% `names<-`(c("intercept", colnames(x)))
+  fit_y <- split(as.data.frame(cbind(1, x)), bag) %>>% 
+    purrr::map(~logit(as.matrix(.), beta)) %>>%
     purrr::map_dbl(~sum(. * exp(alpha * .), na.rm = TRUE) /
-                     sum(exp(alpha * .), na.rm = TRUE)) %>%
+                     sum(exp(alpha * .), na.rm = TRUE)) %>>%
     purrr::map_int(~. > 0.5)
   out <- list(alpha = alpha, coeffiecents = beta, fitted = fit_y, 
               loglik = -softmaxlogL(bagTmp, cbind(1, x), y_bag, beta, alpha))

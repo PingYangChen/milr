@@ -14,7 +14,6 @@
 #' @useDynLib milr
 #' @import assertthat
 #' @importFrom Rcpp cppFunction sourceCpp
-#' @importFrom magrittr %>%
-#' @importFrom magrittr %<>%
+#' @importFrom pipeR %>>%
 #' @importFrom utils globalVariables
-utils::globalVariables(c(".", "%>%", "%<>%"))
+utils::globalVariables(c(".", "%>>%"))

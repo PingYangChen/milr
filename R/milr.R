@@ -13,7 +13,7 @@ fitted.milr <- function(object, ...){
 #' @export
 #' @method predict milr
 predict.milr <- function(object, newdata, bag_newdata, ...){
-  return(coef(object) %>% {split(logit(cbind(1, newdata), .), bag_newdata)} %>%
+  return(coef(object) %>>% (split(logit(cbind(1, newdata), .), bag_newdata)) %>>%
          purrr::map_int(~1-prod(1-.) > 0.5))
 }
 
@@ -27,7 +27,8 @@ summary.milr <- function(object, ...){
     summary$pvalue <- pnorm(abs(summary$z), 0, 1, FALSE) * 2
   } else
   {
-    summary <- list(loglik = object$loglik, beta = object$coeffiecents, lambda = object$lambda_chosen)
+    summary <- list(loglik = object$loglik, beta = object$coeffiecents, 
+                    lambda = object$lambda_chosen)
   }
   class(summary) <- "summary.milr"
   return(summary)
@@ -35,20 +36,18 @@ summary.milr <- function(object, ...){
 
 #' @export
 #' @method print summary.milr
-#' @importFrom magrittr set_colnames
 print.summary.milr <- function(x, digits = max(3L, getOption("digits") - 2L), ...){
   message(sprintf("Log-Likelihood: %.3f.", x$loglik))
   if (x$lambda == 0)
   {
-    outMat <- cbind(x$beta, x$se, x$z, x$pvalue) %>% 
-      magrittr::set_colnames(c("Estimate", "Std.Err", "Z value", "Pr(>z)"))
+    outMat <- cbind(x$beta, x$se, x$z, x$pvalue) %>>% 
+      `colnames<-`(c("Estimate", "Std.Err", "Z value", "Pr(>z)"))
     message("Estimates:")
     printCoefmat(outMat, digits = digits)
   } else
   {
     message(sprintf("Chosen Penalty: %.3f.", x$lambda))
-    outMat <- cbind(x$beta) %>% 
-      magrittr::set_colnames(c("Estimate"))
+    outMat <- cbind(x$beta) %>>% `colnames<-`("Estimate")
     message("Estimates:")
     printCoefmat(outMat, digits = digits)
   }
@@ -60,7 +59,7 @@ cvIndex_f <- function(n, fold){
   rem <- n - fold_n * fold
   index <- rep(1:fold, fold_n)
   if (rem > 0)
-    index %<>% c(1:rem)
+    index <- c(index, 1:rem)
   return(sample(index, length(index)))
 }
 
@@ -72,12 +71,16 @@ cvIndex_f <- function(n, fold){
 #' @param y A vector. Binay response.
 #' @param x The design matrix. The number of rows of x must be equal to the length of y.
 #' @param bag A vector, bag id.
-#' @param lambda The penalty for LASSO. Default is 0 (not use LASSO). If \code{lambda} is vector, the penalty will be chosen by BIC.
+#' @param lambda The penalty for LASSO. Default is 0 (not use LASSO). If \code{lambda} is vector, 
+#' the penalty will be chosen by BIC.
 #'   If \code{lambda} = 0, then the penalty will be chosen automatically.
-#' @param lambdaCriterion A string, the criterion to choose the penalty term. It can be "BIC" or "deviance".
-#' @param nfold An integer, the number of fold for cross-validation to choose the penalty term. (only used in lambdaCriterion = "dev".)
+#' @param lambdaCriterion A string, the criterion to choose the penalty term. 
+#'  It can be "BIC" or "deviance".
+#' @param nfold An integer, the number of fold for cross-validation to choose the penalty term. 
+#'  (only used in lambdaCriterion = "dev".)
 #' @param maxit An integer, the maximum iteration for EM algorithm.
-#' @return An list includes deviance (not cv deviance), BIC, chosen lambda, coefficients, fitted values, log-likelihood and variances of coefficients.
+#' @return An list includes deviance (not cv deviance), BIC, chosen lambda, coefficients, 
+#'  fitted values, log-likelihood and variances of coefficients.
 #' @examples
 #' set.seed(100)
 #' beta <- runif(5, -5, 5)
@@ -112,9 +115,7 @@ cvIndex_f <- function(n, fold){
 #' fitted(milr_result)    # fitted values
 #' summary(milr_result)   # summary milr
 #' predict(milr_result, testData$X, testData$ID) # predicted label
-#' @importFrom magrittr set_names
 #' @importFrom purrr map map_int map2_dbl map_dbl
-#' @importFrom logistf logistf
 #' @importFrom numDeriv hessian
 #' @name milr
 #' @rdname milr
@@ -124,10 +125,10 @@ milr <- function(y, x, bag, lambda = 0, lambdaCriterion = "BIC", nfold = 10, max
   if (is.vector(x))
     x <- matrix(x, ncol = 1)
   if (!is.matrix(x))
-    x %<>% as.matrix
+    x <- as.matrix(x)
   if (!all(y %in% c(0, 1)))
     stop('y must be 0 and 1.')
-  bag %<>% factor %>% as.integer
+  bag <- factor(bag) %>>% as.integer
   # input check
   alpha <- 1
   assert_that(length(unique(y)) == 2, length(y) == nrow(x),
@@ -137,23 +138,21 @@ milr <- function(y, x, bag, lambda = 0, lambdaCriterion = "BIC", nfold = 10, max
               abs(maxit - floor(maxit)) < 1e-4, nfold < nrow(x),
               lambdaCriterion %in% c("deviance", "BIC"))
   loglik <- function(b, Z, X, ID){
-    pii <- split(as.data.frame(X), ID) %>% 
-      purrr::map(~1-prod(1-logit(as.matrix(.), b)))
-    return(purrr::map2_dbl(split(Z, ID) %>% purrr::map(unique), pii, 
-                           ~.x*log(.y)+(1-.x)*log(1-.y)) %>% sum(na.rm = TRUE))
+    pii <- split(as.data.frame(X), ID) %>>% purrr::map(~1-prod(1-logit(as.matrix(.), b)))
+    return(purrr::map2_dbl(split(Z, ID) %>>% purrr::map(unique), pii, 
+                           ~.x*log(.y)+(1-.x)*log(1-.y)) %>>% sum(na.rm = TRUE))
   }
   
   if (length(lambda) == 1 && all(lambda == -1))
   {
     message("The penalty term is selected automatically.")
     m <- table(bag)
-    zi <- tapply(y, bag, function(x) sum(x) > 0) %>% as.numeric
+    zi <- tapply(y, bag, function(x) sum(x) > 0) %>>% as.numeric
     lambdaMax <- sqrt(sum(m-1)) * sqrt(sum(m**(1-2*zi)))
     lambda <- exp(seq(log(lambdaMax/1000), log(lambdaMax), length = 20))
   }
   
   # initial value for coefficients
-  # init_beta <- coef(logistf(y~x))
   init_beta <- coef(glm(y~x))
   unique_bag <- unique(bag)
   n_bag <- length(unique_bag)
@@ -178,7 +177,7 @@ milr <- function(y, x, bag, lambda = 0, lambdaCriterion = "BIC", nfold = 10, max
     } else if (lambdaCriterion == "deviance")
     {
       # calculate the bag label
-      bagLvl <- tapply(y, bag, sum) %>% {as.integer(. > 0)}
+      bagLvl <- tapply(y, bag, sum) %>>% (as.integer(. > 0))
       # avoid the sample size of one class is less than nfold to retrun error in cvIndex_f.
       if (nfold > min(table(bagLvl)))
       {
@@ -191,7 +190,7 @@ milr <- function(y, x, bag, lambda = 0, lambdaCriterion = "BIC", nfold = 10, max
       cvIndex_bag_n <- cvIndex_f(sum(bagLvl == 0), nfold)
       # convert the cv index on bag labels to cv index on samples
       cvIndex_sample <- purrr::map(1:nfold, ~c(which(bagLvl == 1)[which(cvIndex_bag_p == .)],
-                                               which(bagLvl == 0)[which(cvIndex_bag_n == .)])) %>%
+                                               which(bagLvl == 0)[which(cvIndex_bag_n == .)])) %>>%
         purrr::map(~which(bag %in% unique_bag[.]))
       dev_cv <- matrix(NA, length(lambda), nfold)
       dev <- vector('numeric', length(lambda))
@@ -226,9 +225,9 @@ milr <- function(y, x, bag, lambda = 0, lambdaCriterion = "BIC", nfold = 10, max
     lambda_out <- lambda
   }
   # return beta with names
-  beta %<>% as.vector %>% set_names(c("intercept", colnames(x)))
+  beta <- as.vector(beta) %>>% `names<-`(c("intercept", colnames(x)))
   # fitted response
-  fit_y <- beta %>% {split(logit(cbind(1, x), .), bag)} %>%
+  fit_y <- beta %>>% (split(logit(cbind(1, x), .), bag)) %>>%
     purrr::map_int(~1-prod(1-.) > 0.5)
   # calculate the hessian matrix when without lasso
   if (lambda_out == 0)

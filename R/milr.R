@@ -14,7 +14,7 @@ fitted.milr <- function(object, ...){
 #' @method predict milr
 predict.milr <- function(object, newdata, bag_newdata, ...){
   return(coef(object) %>>% (split(logit(cbind(1, newdata), .), bag_newdata)) %>>%
-         purrr::map_int(~1-prod(1-.) > 0.5))
+           purrr::map_int(~1-prod(1-.) > 0.5))
 }
 
 #' @export
@@ -203,9 +203,9 @@ milr <- function(y, x, bag, lambda = 0, lambdaCriterion = "BIC", nfold = 10, max
         {
           trainSetIndex <- do.call(c, cvIndex_sample[setdiff(1:nfold, j)])
           cv_betas[[j]][ , i + 1] <- CLR_lasso(y[trainSetIndex], cbind(1, x[trainSetIndex, ]), 
-                                bag[trainSetIndex], cv_betas[[j]][ , i], lambda[i])
+                                               bag[trainSetIndex], cv_betas[[j]][ , i], lambda[i])
           dev_cv[i, j] <- -2 * loglik(cv_betas[[j]][ , i + 1], y[cvIndex_sample[[j]]], 
-                                   cbind(1, x[cvIndex_sample[[j]], ]), bag[cvIndex_sample[[j]]])
+                                      cbind(1, x[cvIndex_sample[[j]], ]), bag[cvIndex_sample[[j]]])
         }
         # calculate the beta under lambda
         beta_history[, i + 1] <- CLR_lasso(y, cbind(1, x), bag, beta_history[, i], lambda[i])

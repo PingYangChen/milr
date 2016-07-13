@@ -7,18 +7,18 @@
 softmax(y, x, bag, alpha = 0, ...)
 }
 \arguments{
-\item{y}{A vector. Binay response.}
+\item{y}{a vector. Bag-level binary labels.}
 
-\item{x}{The design matrix. The number of rows of x must be equal to the length of y.}
+\item{x}{the design matrix. The number of rows of \code{x} must be equal to the length of \code{y}.}
 
-\item{bag}{A vector, bag id.}
+\item{bag}{a vector, bag id.}
 
 \item{alpha}{A non-negative realnumber, the softmax parameter.}
 
-\item{...}{Arguments to be passed to the method, optim.}
+\item{...}{arguments to be passed to the \code{optim} function.}
 }
 \value{
-An list includes coefficients and fitted values.
+a list including coefficients and fitted values.
 }
 \description{
 This function calculates the alternative maximum likelihood estimation for 

@@ -26,12 +26,12 @@ predict.softmax <- function(object, newdata, bag_newdata, ...){
 #' multiple-instance logistic regression
 #' through a softmax function (Xu and Frank, 2004; Ray and Craven, 2005).
 #'
-#' @param y A vector. Binay response.
-#' @param x The design matrix. The number of rows of x must be equal to the length of y.
-#' @param bag A vector, bag id.
+#' @param y a vector. Bag-level binary labels.
+#' @param x the design matrix. The number of rows of \code{x} must be equal to the length of \code{y}.
+#' @param bag a vector, bag id.
 #' @param alpha A non-negative realnumber, the softmax parameter. 
-#' @param ... Arguments to be passed to the method, optim.
-#' @return An list includes coefficients and fitted values.
+#' @param ... arguments to be passed to the \code{optim} function.
+#' @return a list including coefficients and fitted values.
 #' @examples
 #' set.seed(100)
 #' beta <- runif(10, -5, 5)

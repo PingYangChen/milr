@@ -68,18 +68,20 @@ cvIndex_f <- function(n, fold){
 #' 
 #' Please refer to \link{milr-package}.
 #' 
-#' @param y A vector. Binay response.
-#' @param x The design matrix. The number of rows of x must be equal to the length of y.
-#' @param bag A vector, bag id.
-#' @param lambda The penalty for LASSO. Default is 0 (not use LASSO). If \code{lambda} is vector, 
-#' the penalty will be chosen by BIC.
-#'   If \code{lambda} = 0, then the penalty will be chosen automatically.
-#' @param lambdaCriterion A string, the criterion to choose the penalty term. 
-#'  It can be "BIC" or "deviance".
-#' @param nfold An integer, the number of fold for cross-validation to choose the penalty term. 
-#'  (only used in lambdaCriterion = "dev".)
-#' @param maxit An integer, the maximum iteration for EM algorithm.
-#' @return An list includes deviance (not cv deviance), BIC, chosen lambda, coefficients, 
+#' @param y a vector. Bag-level binary labels.
+#' @param x the design matrix. The number of rows of \code{x} must be equal to the length of \code{y}.
+#' @param bag a vector, bag id.
+#' @param lambda the tuning parameter for LASSO-penalty.  If \code{lambda} is a real value number, then the \code{milr} 
+#'  fits the model based on this lambda value.  Second, if \code{lambda} is vector, then the optimal lambda value would be
+#'  be chosen based on the optimality criterion, \code{lambdaCriterion}.  
+#'  Finally, if \code{lambda = -1}, then the optimal lambda value would be chosen automatically.
+#'  The default is 0. 
+#' @param lambdaCriterion a string, the used optimality criterion for tuning the \code{lambda} value.
+#'  It can be specified with \code{lambdaCriterion = "BIC"} or \code{lambdaCriterion = "deviance"}.
+#' @param nfold an integer, the number of fold for cross-validation to choose the optimal \code{lambda} when
+#'  \code{lambdaCriterion = "deviance"}.
+#' @param maxit an integer, the maximum iteration for the EM algorithm.
+#' @return a list including deviance (not cv deviance), BIC, chosen lambda, coefficients, 
 #'  fitted values, log-likelihood and variances of coefficients.
 #' @examples
 #' set.seed(100)

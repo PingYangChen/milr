@@ -8,26 +8,28 @@ milr(y, x, bag, lambda = 0, lambdaCriterion = "BIC", nfold = 10,
   maxit = 500)
 }
 \arguments{
-\item{y}{A vector. Binay response.}
+\item{y}{a vector. Bag-level binary labels.}
 
-\item{x}{The design matrix. The number of rows of x must be equal to the length of y.}
+\item{x}{the design matrix. The number of rows of \code{x} must be equal to the length of \code{y}.}
 
-\item{bag}{A vector, bag id.}
+\item{bag}{a vector, bag id.}
 
-\item{lambda}{The penalty for LASSO. Default is 0 (not use LASSO). If \code{lambda} is vector, 
-the penalty will be chosen by BIC.
-  If \code{lambda} = 0, then the penalty will be chosen automatically.}
+\item{lambda}{the tuning parameter for LASSO-penalty.  If \code{lambda} is a real value number, then the \code{milr} 
+fits the model based on this lambda value.  Second, if \code{lambda} is vector, then the optimal lambda value would be
+be chosen based on the optimality criterion, \code{lambdaCriterion}.  
+Finally, if \code{lambda = -1}, then the optimal lambda value would be chosen automatically.
+The default is 0.}
 
-\item{lambdaCriterion}{A string, the criterion to choose the penalty term. 
-It can be "BIC" or "deviance".}
+\item{lambdaCriterion}{a string, the used optimality criterion for tuning the \code{lambda} value.
+It can be specified with \code{lambdaCriterion = "BIC"} or \code{lambdaCriterion = "deviance"}.}
 
-\item{nfold}{An integer, the number of fold for cross-validation to choose the penalty term. 
-(only used in lambdaCriterion = "dev".)}
+\item{nfold}{an integer, the number of fold for cross-validation to choose the optimal \code{lambda} when
+\code{lambdaCriterion = "deviance"}.}
 
-\item{maxit}{An integer, the maximum iteration for EM algorithm.}
+\item{maxit}{an integer, the maximum iteration for the EM algorithm.}
 }
 \value{
-An list includes deviance (not cv deviance), BIC, chosen lambda, coefficients, 
+a list including deviance (not cv deviance), BIC, chosen lambda, coefficients, 
  fitted values, log-likelihood and variances of coefficients.
 }
 \description{

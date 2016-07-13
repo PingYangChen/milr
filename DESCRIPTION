@@ -10,6 +10,7 @@ Authors@R: c(person("ChingChuan", "Chen", , "celestial0230@stat.sinica.edu.tw", 
              person("Ping-Yang", "Chen", , "pychen@stat.ncku.edu.tw", c("aut")),
              person("Chun-Hao", "Yang", , "chunhaoyang@ufl.edu", c("aut")),
              person("Sheng-Mao", "Chang", , "smchang@mail.ncku.edu.tw", c("aut")))
+Author: ChingChuan Chen, Ping-Yang Chen, Chun-Hao Yang, Sheng-Mao Chang             
 URL: https://github.com/PingYangChen/milr
 BugReports: https://github.com/PingYangChen/milr/issues
 Maintainer: Ping-Yang Chen <pychen.ping@gmail.com>

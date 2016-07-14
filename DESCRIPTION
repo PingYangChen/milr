@@ -1,6 +1,6 @@
 Package: milr
 Type: Package
-Title: Multiple-instance Logistic Regression with LASSO Penalty
+Title: Multiple-Instance Logistic Regression with LASSO Penalty
 Version: 0.1.0
 Date: 2016-07-14
 Description: The multiple instance data set consists of many independent subjects 
@@ -13,7 +13,7 @@ Description: The multiple instance data set consists of many independent subject
     estimation with the Expectation-Maximization algorithm under the framework of logistic 
     regression.  Moreover, the LASSO penalty is attached to the likelihood function for 
     simultaneous parameter estimation and variable selection.  
-Authors@R: c(person("Ping-Yang", "Chen", , "pychen@stat.ncku.edu.tw", c("aut", "cre")),
+Authors@R: c(person("Ping-Yang", "Chen", , "pychen.ping@gmail.com", c("aut", "cre")),
              person("ChingChuan", "Chen", , "celestial0230@stat.sinica.edu.tw", "aut"), 
              person("Chun-Hao", "Yang", , "chunhaoyang@ufl.edu", "aut"),
              person("Sheng-Mao", "Chang", , "smchang@mail.ncku.edu.tw", "aut"))

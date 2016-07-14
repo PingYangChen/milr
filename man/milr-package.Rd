@@ -3,15 +3,23 @@
 \docType{package}
 \name{milr-package}
 \alias{milr-package}
-\title{The milr package: an implementation for multiple-instance logistic regression with lasso penalty}
+\title{The milr package: multiple-instance logistic regression with lasso penalty}
 \description{
-This package performs maximum likelihood estimation for multiple-instance logistic regression  
-utilizing the EM algorithm. Also, the LASSO penalty is implemented for variable selection.
+The multiple instance data set consists of many independent subjects (called bags) 
+and each subject is composed of several components (called instances). The outcomes 
+of such data set are binary or multinomial, and, we can only observe the subject-level 
+outcomes. For example, in manufactory processes, a subject is labeled as "defective" 
+if at least one of its own components is defective, and otherwise, is labeled as 
+"non-defective".  The milr package focuses on the predictive model for the multiple 
+instance data set with binary outcomes and performs the maximum likelihood estimation 
+with the Expectation-Maximization algorithm under the framework of logistic regression.  
+Moreover, the LASSO penalty is attached to the likelihood function for simultaneous parameter 
+estimation and variable selection.
 }
 \references{
 \enumerate{
-  \item Ray-Bing Chen, Kuang-Hung Cheng, Sheng-Mao Chang, Shuen-Lin Jeng, 
-   Ping-Yang Chen, Chun-Hao Yang, and Chi-Chun Hsia. (2016+) Multiple-Instance Logistic Regression with LASSO Penalty. (Submitted)
+  \item Chen, R.-B., Cheng, K.-H., Chang, S.-M., Jeng, S.-L., Chen, P.-Y., Yang, C.-H., 
+ and Hsia, C.-C. (2016). Multiple-Instance Logistic Regression with LASSO Penalty. arXiv:1607.03615 [stat.ML].
 }
 }
 

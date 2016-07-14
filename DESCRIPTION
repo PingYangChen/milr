@@ -1,16 +1,26 @@
 Package: milr
 Type: Package
-Title: milr: multiple-instance logistic regression with lasso penalty
+Title: Multiple-instance Logistic Regression with LASSO Penalty
 Version: 0.1.0
-Date: 2016-07-11
-Description: This package performs maximum likelihood estimation for
-    multiple-instance logistic regression utilizing EM algorithm.
-    Also, LASSO penalty is implemented for variable selection.
-Authors@R: c(person("ChingChuan", "Chen", , "celestial0230@stat.sinica.edu.tw", c("aut", "cre")), 
-             person("Ping-Yang", "Chen", , "pychen@stat.ncku.edu.tw", c("aut")),
-             person("Chun-Hao", "Yang", , "chunhaoyang@ufl.edu", c("aut")),
-             person("Sheng-Mao", "Chang", , "smchang@mail.ncku.edu.tw", c("aut")))
-Author: ChingChuan Chen, Ping-Yang Chen, Chun-Hao Yang, Sheng-Mao Chang             
+Date: 2016-07-14
+Description: The multiple instance data set consists of many independent subjects 
+    (called bags) and each subject is composed of several components (called instances). 
+    The outcomes of such data set are binary or multinomial, and, we can only observe 
+    the subject-level outcomes. For example, in manufactory processes, a subject is labeled 
+    as "defective" if at least one of its own components is defective, and otherwise, is 
+    labeled as "non-defective".  The milr package focuses on the predictive model for the 
+    multiple instance data set with binary outcomes and performs the maximum likelihood 
+    estimation with the Expectation-Maximization algorithm under the framework of logistic 
+    regression.  Moreover, the LASSO penalty is attached to the likelihood function for 
+    simultaneous parameter estimation and variable selection.  
+Authors@R: c(person("Ping-Yang", "Chen", , "pychen@stat.ncku.edu.tw", c("aut", "cre")),
+             person("ChingChuan", "Chen", , "celestial0230@stat.sinica.edu.tw", "aut"), 
+             person("Chun-Hao", "Yang", , "chunhaoyang@ufl.edu", "aut"),
+             person("Sheng-Mao", "Chang", , "smchang@mail.ncku.edu.tw", "aut"))
+Author: Ping-Yang Chen [aut, cre], 
+    ChingChuan Chen [aut], 
+    Chun-Hao Yang [aut], 
+    Sheng-Mao Chang [aut]
 URL: https://github.com/PingYangChen/milr
 BugReports: https://github.com/PingYangChen/milr/issues
 Maintainer: Ping-Yang Chen <pychen.ping@gmail.com>

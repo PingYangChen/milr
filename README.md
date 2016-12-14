@@ -22,10 +22,10 @@ You can install:
 
     ```R
     install.packages("devtools")
-    devtools::install_github("ChingChuan-Chen/milr")
+    devtools::install_github("PingYangChen/milr")
     ```
 
-If you encounter a bug, please file a reproducible example on [github](https://github.com/ChingChuan-Chen/milr/issues).
+If you encounter a bug, please file a reproducible example on [github](https://github.com/PingYangChen/milr/issues).
 
 ## examples
 

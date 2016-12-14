@@ -29,8 +29,15 @@ It can be specified with \code{lambdaCriterion = "BIC"} or \code{lambdaCriterion
 \item{maxit}{an integer, the maximum iteration for the EM algorithm.}
 }
 \value{
-a list including deviance (not cv deviance), BIC, chosen lambda, coefficients, 
- fitted values, log-likelihood and variances of coefficients.
+An object with S3 class "milr".
+\item{lambda}{a vector of candidate lambda values.}
+\item{cv}{a vector of predictive deviance via \code{nfold}-fold cross validation
+ when \code{lambdaCriterion = "deviance"}.}
+\item{deviance}{a vector of deviance of candidate model for each candidate lambda value.}
+\item{BIC}{a vector of BIC of candidate model for each candidate lambda value.}
+\item{best_index}{an integer, indicates the index of the best model among candidate lambda values.}
+\item{best_model}{a list of the information for the best model including deviance (not cv deviance), 
+ BIC, chosen lambda, coefficients, fitted values, log-likelihood and variances of coefficients.}
 }
 \description{
 Please refer to \link{milr-package}.

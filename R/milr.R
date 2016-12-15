@@ -134,7 +134,7 @@ cvIndex_f <- function(n, fold){
 #' @name milr
 #' @rdname milr
 #' @export
-milr <- function(y, x, bag, lambda = 0, lambdaCriterion = "BIC", nfold = 10, maxit = 500) {
+milr <- function(y, x, bag, lambda = 0, lambdaCriterion = "BIC", nfold = 10, maxit = 1000) {
   # if x is vector, transform it to matrix
   if (is.vector(x))
     x <- matrix(x, ncol = 1)
@@ -167,7 +167,8 @@ milr <- function(y, x, bag, lambda = 0, lambdaCriterion = "BIC", nfold = 10, max
   }
   
   # initial value for coefficients
-  init_beta <- coef(glm(y~x, family = binomial("logit")))
+  #init_beta <- coef(glm(y~x))
+  init_beta <- coef(softmax(y, x, bag, alpha = 0, control = list(maxit = 1000)))
 	beta_history <- matrix(NA, ncol(x) + 1, length(lambda) + 1)
   beta_history[ , 1] <- init_beta
   unique_bag <- unique(bag)

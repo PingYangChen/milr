@@ -79,7 +79,7 @@ softmax <- function(y, x, bag, alpha = 0, ...) {
   # }
   
   # initial value for coefficients
-  init_beta <- coef(glm(y~x))
+  init_beta <- coef(glm(y~x, family = binomial("logit")))
   # optimize coefficients
   y_bag <- tapply(y, bag, function(x) sum(x) > 0)
   bagTmp <- as.numeric(as.factor(bag))

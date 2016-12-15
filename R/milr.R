@@ -167,7 +167,7 @@ milr <- function(y, x, bag, lambda = 0, lambdaCriterion = "BIC", nfold = 10, max
   }
   
   # initial value for coefficients
-  init_beta <- coef(glm(y~x))
+  init_beta <- coef(glm(y~x, family = binomial("logit")))
 	beta_history <- matrix(NA, ncol(x) + 1, length(lambda) + 1)
   beta_history[ , 1] <- init_beta
   unique_bag <- unique(bag)

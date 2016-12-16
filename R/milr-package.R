@@ -21,6 +21,7 @@
 #' @name milr-package
 #' @useDynLib milr
 #' @import assertthat
+#' @importFrom glmnet glmnet
 #' @importFrom Rcpp cppFunction sourceCpp
 #' @importFrom pipeR %>>%
 #' @importFrom utils globalVariables 

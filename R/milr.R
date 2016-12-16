@@ -131,6 +131,7 @@ cvIndex_f <- function(n, fold){
 #' predict(milr_result, testData$X, testData$ID) # predicted label
 #' @importFrom purrr map map_int map2_dbl map_dbl
 #' @importFrom numDeriv hessian
+#' @importFrom glmnet glmnet
 #' @name milr
 #' @rdname milr
 #' @export
@@ -168,8 +169,9 @@ milr <- function(y, x, bag, lambda = 0, lambdaCriterion = "BIC", nfold = 10, max
   
   # initial value for coefficients
   #init_beta <- coef(glm(y~x))
-  init_beta <- coef(softmax(y, x, bag, alpha = 0, control = list(maxit = 1000)))
-	beta_history <- matrix(NA, ncol(x) + 1, length(lambda) + 1)
+  init_beta <- as.numeric(coef(glmnet(x, y, standardize = T, 
+                                      alpha = 0, lambda = lambda[1])))
+  beta_history <- matrix(NA, ncol(x) + 1, length(lambda) + 1)
   beta_history[ , 1] <- init_beta
   unique_bag <- unique(bag)
   n_bag <- length(unique_bag)

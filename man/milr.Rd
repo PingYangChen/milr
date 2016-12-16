@@ -4,7 +4,7 @@
 \alias{milr}
 \title{Maximum likelihood estimation of multiple-instance logistic regression with LASSO penalty}
 \usage{
-milr(y, x, bag, lambda = 0, nlambda = 100, lambdaCriterion = "BIC",
+milr(y, x, bag, lambda = 0, nlambda = 20, lambdaCriterion = "BIC",
   nfold = 10, maxit = 1000)
 }
 \arguments{
@@ -20,7 +20,8 @@ be chosen based on the optimality criterion, \code{lambdaCriterion}.
 Finally, if \code{lambda = -1}, then the optimal lambda value would be chosen automatically.
 The default is 0.}
 
-\item{nlambda}{an integer. Specify the length of tunning lambda values in atuo-tunning mode (\code{lambda = -1}).}
+\item{nlambda}{an integer. Specify the length of tunning lambda values in atuo-tunning mode 
+(\code{lambda = -1}). The default is 20.}
 
 \item{lambdaCriterion}{a string, the used optimality criterion for tuning the \code{lambda} value.
 It can be specified with \code{lambdaCriterion = "BIC"} or \code{lambdaCriterion = "deviance"}.}

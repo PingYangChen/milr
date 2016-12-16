@@ -81,7 +81,8 @@ cvIndex_f <- function(n, fold){
 #'  be chosen based on the optimality criterion, \code{lambdaCriterion}.  
 #'  Finally, if \code{lambda = -1}, then the optimal lambda value would be chosen automatically.
 #'  The default is 0. 
-#' @param nlambda an integer. Specify the length of tunning lambda values in atuo-tunning mode (\code{lambda = -1}).
+#' @param nlambda an integer. Specify the length of tunning lambda values in atuo-tunning mode 
+#'  (\code{lambda = -1}). The default is 20.
 #' @param lambdaCriterion a string, the used optimality criterion for tuning the \code{lambda} value.
 #'  It can be specified with \code{lambdaCriterion = "BIC"} or \code{lambdaCriterion = "deviance"}.
 #' @param nfold an integer, the number of fold for cross-validation to choose the optimal \code{lambda} when
@@ -136,7 +137,7 @@ cvIndex_f <- function(n, fold){
 #' @name milr
 #' @rdname milr
 #' @export
-milr <- function(y, x, bag, lambda = 0, nlambda = 100, lambdaCriterion = "BIC", nfold = 10, maxit = 1000) {
+milr <- function(y, x, bag, lambda = 0, nlambda = 20, lambdaCriterion = "BIC", nfold = 10, maxit = 1000) {
   # if x is vector, transform it to matrix
   if (is.vector(x))
     x <- matrix(x, ncol = 1)

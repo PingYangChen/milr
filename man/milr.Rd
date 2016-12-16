@@ -4,8 +4,8 @@
 \alias{milr}
 \title{Maximum likelihood estimation of multiple-instance logistic regression with LASSO penalty}
 \usage{
-milr(y, x, bag, lambda = 0, lambdaCriterion = "BIC", nfold = 10,
-  maxit = 1000)
+milr(y, x, bag, lambda = 0, nlambda = 100, lambdaCriterion = "BIC",
+  nfold = 10, maxit = 1000)
 }
 \arguments{
 \item{y}{a vector. Bag-level binary labels.}
@@ -20,13 +20,15 @@ be chosen based on the optimality criterion, \code{lambdaCriterion}.
 Finally, if \code{lambda = -1}, then the optimal lambda value would be chosen automatically.
 The default is 0.}
 
+\item{nlambda}{an integer. Specify the length of tunning lambda values in atuo-tunning mode (\code{lambda = -1}).}
+
 \item{lambdaCriterion}{a string, the used optimality criterion for tuning the \code{lambda} value.
 It can be specified with \code{lambdaCriterion = "BIC"} or \code{lambdaCriterion = "deviance"}.}
 
 \item{nfold}{an integer, the number of fold for cross-validation to choose the optimal \code{lambda} when
 \code{lambdaCriterion = "deviance"}.}
 
-\item{maxit}{an integer, the maximum iteration for the EM algorithm.}
+\item{maxit}{an integer, the maximum iteration for the EM algorithm.  The default is 1000.}
 }
 \value{
 An object with S3 class "milr".

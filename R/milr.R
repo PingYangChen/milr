@@ -85,7 +85,7 @@ cvIndex_f <- function(n, fold){
 #'  It can be specified with \code{lambdaCriterion = "BIC"} or \code{lambdaCriterion = "deviance"}.
 #' @param nfold an integer, the number of fold for cross-validation to choose the optimal \code{lambda} when
 #'  \code{lambdaCriterion = "deviance"}.
-#' @param maxit an integer, the maximum iteration for the EM algorithm.
+#' @param maxit an integer, the maximum iteration for the EM algorithm.  The default is 1000.
 #' @return An object with S3 class "milr".
 #' \item{lambda}{a vector of candidate lambda values.}
 #' \item{cv}{a vector of predictive deviance via \code{nfold}-fold cross validation

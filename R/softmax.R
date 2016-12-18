@@ -1,23 +1,37 @@
 #' @export
 #' @method coef softmax
-coef.softmax <- function(object, ...){
+coef.softmax <- function(object, ...) {
   return(object$coeffiecents)
 }
 
 #' @export
 #' @method fitted softmax
-fitted.softmax <- function(object, ...){
+fitted.softmax <- function(object, ...) {
   return(object$fitted)
 }
 
+#' Predict Method for softmax Fits
+#' 
+#' @param object A fitted obejct of class inheriting from \code{"softmax"}.
+#' @param newdata A matrix with variables to predict.
+#' @param bag_newdata A vector. The labels of instances to bags.
+#' @param ... further arguments passed to or from other methods.
 #' @export
 #' @method predict softmax
-predict.softmax <- function(object, newdata, bag_newdata, ...){
-  return(split(as.data.frame(cbind(1, newdata)), bag_newdata) %>>%
-           purrr::map(~logit(as.matrix(.), coef(object))) %>>%
-           purrr::map(~sum(. * exp(object$alpha * .), na.rm = TRUE) /
-                        sum(exp(object$alpha * .), na.rm = TRUE)) %>>%
-           purrr::map_int(~. > 0.5))
+predict.softmax <- function(object, newdata, bag_newdata, ...) {
+  return(getSoftmaxBag(cbind(1, newdata), coef(object), bag_newdata, object$alpha))
+}
+
+#' @export
+#' @method print softmax
+print.softmax <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  if (length(coef(x)) > 0) {
+    cat("Coefficients:\n")
+    print.default(format(coef(x), digits = digits), print.gap = 2, quote = FALSE)
+    cat("\n")
+  }
+  cat("Log-Likelihood:   ", format(signif(x$loglik, digits)), "\n")
+  invisible(x)
 }
 
 #' Multiple-instance logistic regression via softmax function
@@ -52,7 +66,6 @@ predict.softmax <- function(object, newdata, bag_newdata, ...){
 #'	 \item X. Xu, and E. Frank. (2004) Logistic regression and boosting for labeled bags 
 #'	 of instances. in Advances in Knowledge Discovery and Data Mining, Springer, 272--281.
 #' }
-#' @importFrom purrr map map_int map2_dbl
 #' @export
 softmax <- function(y, x, bag, alpha = 0, ...) {
   # if x is vector, transform it to matrix
@@ -60,41 +73,30 @@ softmax <- function(y, x, bag, alpha = 0, ...) {
     x <- matrix(x, ncol = 1)
   if (!is.matrix(x))
     x <- as.matrix(x)
+  # if column names of x is missing, assign xi
+  if (is.null(colnames(x)))
+    colnames(x) <- paste0("x", 1L:ncol(x))
   if (!all(y %in% c(0, 1)))
     stop('y must be 0 and 1.')
   # input check
-  assert_that(length(unique(y)) == 2, length(y) == nrow(x),
+  assert_that(length(unique(y)) == 2L, length(y) == nrow(x),
               all(is.finite(y)), is.numeric(y), all(is.finite(x)), is.numeric(x),  
               alpha >= 0, is.finite(alpha), is.numeric(alpha))
   
-  ## old objectuve function code
-  # objectuve function - negative of the log-likelihood
-  # nloglik <- function(b, x, y, alpha){
-  #   pii <- split(as.data.frame(cbind(1, x)), bag) %>% 
-  #     purrr::map(~logit(as.matrix(.), b)) %>%
-  #     purrr::map_dbl(~sum(. * exp(alpha * .), na.rm = TRUE) /
-  #                      sum(exp(alpha * .), na.rm = TRUE))
-  #   return(-1*(purrr::map2_dbl(split(y, bag) %>% purrr::map(unique), pii, 
-  #                              ~.x*log(.y)+(1-.x)*log(1-.y)) %>% sum(na.rm = TRUE)))
-  # }
-  
   # initial value for coefficients
-  init_beta <- coef(glm(y~x))
+  init_beta <- coef(glm(y ~ x))
+  # find the bag response
+  y_bag <- tapply(y, bag, function(z) any(z > 0)) %>>% as.integer
+  bagTmp <- as.integer(as.factor(bag))
   # optimize coefficients
-  y_bag <- tapply(y, bag, function(x) sum(x) > 0)
-  bagTmp <- as.numeric(as.factor(bag))
   beta <- optim(par = init_beta, fn = function(b){
-    softmaxlogL(bagTmp, cbind(1,x), y_bag, b, alpha)
-  }, ...)$par
+    softmaxlogL(bagTmp, cbind(1, x), y_bag, b, alpha)
+  }, ...)$par %>>% `names<-`(c("intercept", colnames(x)))
   
-  beta <- beta %>>% as.vector %>>% `names<-`(c("intercept", colnames(x)))
-  fit_y <- split(as.data.frame(cbind(1, x)), bag) %>>% 
-    purrr::map(~logit(as.matrix(.), beta)) %>>%
-    purrr::map_dbl(~sum(. * exp(alpha * .), na.rm = TRUE) /
-                     sum(exp(alpha * .), na.rm = TRUE)) %>>%
-    purrr::map_int(~. > 0.5)
-  out <- list(alpha = alpha, coeffiecents = beta, fitted = fit_y, 
-              loglik = -softmaxlogL(bagTmp, cbind(1, x), y_bag, beta, alpha))
-  class(out) <- 'softmax'
+  # get fitted bag response
+  fit_y <- getSoftmaxBag(cbind(1, x), beta, bag, alpha)
+  out <- structure(list(alpha = alpha, coeffiecents = beta, fitted = fit_y, 
+                        loglik = -softmaxlogL(bagTmp, cbind(1, x), y_bag, beta, alpha)), 
+                   class = "softmax")
   return(out)
 }

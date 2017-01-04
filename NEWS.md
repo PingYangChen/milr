@@ -1,11 +1,11 @@
 
 # rfda v0.2.0
 
-* Output the labels of instances.
-* Performance tuning with rewriting some functions with C++.
 * Remove dependency: purrr 
-* new options for milr: numLambda, tolerance.
-* Use the coefficients of ridge regression acquired by `glmnet` as initial values.
+* Performance tuning with rewriting some functions with C++.
+* New options for milr: numLambda, tolerance.
+* Add option for output the labels of bags/instances into `fitted` and `predict` functions.
+* Use the coefficients of ridge regression acquired by `glmnet` as initial values for p > n problems.
 
 # rfda v0.1.0
 

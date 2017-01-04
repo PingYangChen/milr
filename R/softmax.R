@@ -72,8 +72,10 @@ print.softmax <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
 #' # Fit softmax-MILR model S(0)
 #' softmax_result <- softmax(trainData$Z, trainData$X, trainData$ID, alpha = 0)
 #' coef(softmax_result)      # coefficients
-#' fitted(softmax_result)    # fitted values
-#' predict(softmax_result, testData$X, testData$ID) # predicted label
+#' fitted(softmax_result)                    # fitted bag labels
+#' fitted(softmax_result, type = "instance") # fitted instance labels
+#' predict(softmax_result, testData$X, testData$ID)                    # predicted bag labels
+#' predict(softmax_result, testData$X, testData$ID, type = "instance") # predicted instance labels
 #' # Fit softmax-MILR model S(3)
 #' softmax_result <- softmax(trainData$Z, trainData$X, trainData$ID, alpha = 3)
 #' @references

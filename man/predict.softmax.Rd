@@ -4,7 +4,7 @@
 \alias{predict.softmax}
 \title{Predict Method for softmax Fits}
 \usage{
-\method{predict}{softmax}(object, newdata, bag_newdata, ...)
+\method{predict}{softmax}(object, newdata, bag_newdata, type = "bag", ...)
 }
 \arguments{
 \item{object}{A fitted obejct of class inheriting from \code{"softmax"}.}
@@ -12,6 +12,9 @@
 \item{newdata}{A matrix with variables to predict.}
 
 \item{bag_newdata}{A vector. The labels of instances to bags.}
+
+\item{type}{The type of prediction required. Default is \code{"bag"}, the predicted labels of bags.
+The \code{"instance"} option returns the predicted labels of instances.}
 
 \item{...}{further arguments passed to or from other methods.}
 }

@@ -112,14 +112,13 @@ cvIndex_f <- function(n, fold) {
 #'  be chosen based on the optimality criterion, \code{lambdaCriterion}.  
 #'  Finally, if \code{lambda = -1}, then the optimal lambda value would be chosen automatically.
 #'  The default is 0. 
-#' @param nlambda an integer. Specify the length of tunning lambda values in atuo-tunning mode 
+#' @param numLambda An integer, the maximum length of LASSO-penalty. in atuo-tunning mode 
 #'  (\code{lambda = -1}). The default is 20.
 #' @param lambdaCriterion a string, the used optimality criterion for tuning the \code{lambda} value.
 #'  It can be specified with \code{lambdaCriterion = "BIC"} or \code{lambdaCriterion = "deviance"}.
 #' @param nfold an integer, the number of fold for cross-validation to choose the optimal \code{lambda} when
 #'  \code{lambdaCriterion = "deviance"}.
 #' @param maxit an integer, the maximum iteration for the EM algorithm. The default is 1000.
-#' @param numLambda An integer, the maximum length of LASSO-penalty. The default is 20.
 #' @param tolerance Convergence threshold for coordinate descent. The default is 1e-5.
 #' @return An object with S3 class "milr".
 #' \itemize{
@@ -140,42 +139,46 @@ cvIndex_f <- function(n, fold) {
 #' # default (not use LASSO)
 #' milr_result <- milr(trainData$Z, trainData$X, trainData$ID)
 #' coef(milr_result)      # coefficients
-#' fitted(milr_result)    # fitted values
+#' fitted(milr_result)                    # fitted bag labels
+#' fitted(milr_result, type = "instance") # fitted instance labels
 #' summary(milr_result)   # summary milr
-#' predict(milr_result, testData$X, testData$ID) # predicted label
-#' predict(milr_result, testData$X, testData$ID, type = "instance") # predicted label
+#' predict(milr_result, testData$X, testData$ID)                    # predicted bag labels
+#' predict(milr_result, testData$X, testData$ID, type = "instance") # predicted instance labels
 #' 
 #' # use BIC to choose penalty
 #' milr_result <- milr(trainData$Z, trainData$X, trainData$ID,
 #'   exp(seq(log(0.01), log(50), length = 30)))
 #' coef(milr_result)      # coefficients
-#' fitted(milr_result)    # fitted values
+#' fitted(milr_result)                    # fitted bag labels
+#' fitted(milr_result, type = "instance") # fitted instance labels
 #' summary(milr_result)   # summary milr
-#' predict(milr_result, testData$X, testData$ID) # predicted label
-#' predict(milr_result, testData$X, testData$ID, type = "instance") # predicted label
+#' predict(milr_result, testData$X, testData$ID)                    # predicted bag labels
+#' predict(milr_result, testData$X, testData$ID, type = "instance") # predicted instance labels
 #' 
 #' # use auto-tuning
-#' milr_result <- milr(trainData$Z, trainData$X, trainData$ID, lambda = -1)
+#' milr_result <- milr(trainData$Z, trainData$X, trainData$ID, lambda = -1, numLambda = 20)
 #' coef(milr_result)      # coefficients
-#' fitted(milr_result)    # fitted values
+#' fitted(milr_result)                    # fitted bag labels
+#' fitted(milr_result, type = "instance") # fitted instance labels
 #' summary(milr_result)   # summary milr
-#' predict(milr_result, testData$X, testData$ID) # predicted label
-#' predict(milr_result, testData$X, testData$ID, type = "instance") # predicted label
+#' predict(milr_result, testData$X, testData$ID)                    # predicted bag labels
+#' predict(milr_result, testData$X, testData$ID, type = "instance") # predicted instance labels
 #' 
 #' # use cv in auto-tuning
 #' milr_result <- milr(trainData$Z, trainData$X, trainData$ID, 
-#'                     lambda = -1, lambdaCriterion = "deviance")
+#'                     lambda = -1, numLambda = 20, lambdaCriterion = "deviance")
 #' coef(milr_result)      # coefficients
-#' fitted(milr_result)    # fitted values
+#' fitted(milr_result)                    # fitted bag labels
+#' fitted(milr_result, type = "instance") # fitted instance labels
 #' summary(milr_result)   # summary milr
-#' predict(milr_result, testData$X, testData$ID) # predicted label
-#' predict(milr_result, testData$X, testData$ID, type = "instance") # predicted label
+#' predict(milr_result, testData$X, testData$ID)                    # predicted bag labels
+#' predict(milr_result, testData$X, testData$ID, type = "instance") # predicted instance labels
 #' @importFrom numDeriv hessian
 #' @importFrom glmnet glmnet
 #' @name milr
 #' @rdname milr
 #' @export
-milr <- function(y, x, bag, lambda = 0, lambdaCriterion = "BIC", nfold = 10L, maxit = 1000L, numLambda = 20L, tolerance = 1e-5) {
+milr <- function(y, x, bag, lambda = 0, numLambda = 20L, lambdaCriterion = "BIC", nfold = 10L, maxit = 1000L, tolerance = 1e-5) {
   # if x is vector, transform it to matrix
   if (is.vector(x))
     x <- matrix(x, ncol = 1)
@@ -201,7 +204,7 @@ milr <- function(y, x, bag, lambda = 0, lambdaCriterion = "BIC", nfold = 10L, ma
     m <- table(bag)
     zi <- tapply(y, bag, function(x) sum(x) > 0) %>>% as.numeric
     lambdaMax <- sqrt(sum(m-1)) * sqrt(sum(m**(1-2*zi)))
-    lambda <- exp(seq(log(lambdaMax/1000), log(lambdaMax), length = nlambda))
+    lambda <- exp(seq(log(lambdaMax/1000), log(lambdaMax), length = numLambda))
   } else if (length(lambda) == 1 && lambda == 0) {
     message("Lasso-penalty is not used.")
   } else {

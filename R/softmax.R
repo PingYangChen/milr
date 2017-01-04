@@ -4,10 +4,21 @@ coef.softmax <- function(object, ...) {
   return(object$coeffiecents)
 }
 
+#' Fitted Response of softmax Fits
+#' 
+#' @param object A fitted obejct of class inheriting from \code{"softmax"}.
+#' @param type The type of fitted response required. Default is \code{"bag"}, the fitted labels of bags.
+#'   The \code{"instance"} option returns the fitted labels of instances.
+#' @param ... further arguments passed to or from other methods.
 #' @export
 #' @method fitted softmax
-fitted.softmax <- function(object, ...) {
-  return(object$fitted)
+fitted.softmax <- function(object, type = "bag", ...) {
+  stopifnot(length(type) == 1)
+  if (type == "bag") {
+    return(object$fitted$bag)
+  } else if (type == "instance") {
+    return(object$fitted$instance)
+  }
 }
 
 #' Predict Method for softmax Fits
@@ -15,11 +26,18 @@ fitted.softmax <- function(object, ...) {
 #' @param object A fitted obejct of class inheriting from \code{"softmax"}.
 #' @param newdata A matrix with variables to predict.
 #' @param bag_newdata A vector. The labels of instances to bags.
+#' @param type The type of prediction required. Default is \code{"bag"}, the predicted labels of bags.
+#'   The \code{"instance"} option returns the predicted labels of instances.
 #' @param ... further arguments passed to or from other methods.
 #' @export
 #' @method predict softmax
-predict.softmax <- function(object, newdata, bag_newdata, ...) {
-  return(getSoftmaxBag(cbind(1, newdata), coef(object), bag_newdata, object$alpha))
+predict.softmax <- function(object, newdata, bag_newdata, type = "bag", ...) {
+  stopifnot(length(type) == 1)
+  if (type == "bag") {
+    return(getSoftmaxBag(cbind(1, newdata), coef(object), bag_newdata, object$alpha))
+  } else if (type == "instance") {
+    return(logit(cbind(1, newdata), coef(object)) %>>% `>`(0.5) %>>% as.numeric)
+  }
 }
 
 #' @export
@@ -95,7 +113,10 @@ softmax <- function(y, x, bag, alpha = 0, ...) {
   
   # get fitted bag response
   fit_y <- getSoftmaxBag(cbind(1, x), beta, bag, alpha)
-  out <- structure(list(alpha = alpha, coeffiecents = beta, fitted = fit_y, 
+  # get fitted instance response
+  fit_yij <- (beta %>>% (logit(cbind(1, x), .)) > 0.5) %>>% as.numeric(.)
+  out <- structure(list(alpha = alpha, coeffiecents = beta, 
+                        fitted = list(bag = fit_y, instance = fit_yij), 
                         loglik = -softmaxlogL(bagTmp, cbind(1, x), y_bag, beta, alpha)), 
                    class = "softmax")
   return(out)

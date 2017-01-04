@@ -4,10 +4,21 @@ coef.milr <- function(object, ...) {
   return(object$best_model$coeffiecents)
 }
 
+#' Fitted Response of milr Fits
+#' 
+#' @param object A fitted obejct of class inheriting from \code{"milr"}.
+#' @param type The type of fitted response required. Default is \code{"bag"}, the fitted labels of bags.
+#'   The \code{"instance"} option returns the fitted labels of instances.
+#' @param ... further arguments passed to or from other methods.
 #' @export
 #' @method fitted milr
-fitted.milr <- function(object, ...) {
-  return(object$best_model$fitted)
+fitted.milr <- function(object, type = "bag", ...) {
+  stopifnot(length(type) == 1)
+  if (type == "bag") {
+    return(object$best_model$fitted$bag)
+  } else if (type == "instance") {
+    return(object$best_model$fitted$instance)
+  }
 }
 
 #' Predict Method for milr Fits

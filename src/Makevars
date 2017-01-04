@@ -1,5 +1,2 @@
-<<<<<<< HEAD
 
-=======
->>>>>>> parent of e891d5d... update Makevars
 PKG_LIBS = $(LAPACK_LIBS) $(BLAS_LIBS) $(FLIBS)

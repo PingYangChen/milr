@@ -29,11 +29,12 @@ before_install:
 r_binary_packages:
   - devtools
   - numDeriv
-  - logistf
+  - glmnet
   - plyr
-  - magrittr
+  - assertthat
+  - pipeR
   - testthat
-
+  
 # r_github_packages:  
   # - jimhester/covr
 

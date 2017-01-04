@@ -24,15 +24,24 @@ fitted.milr <- function(object, type = "bag", ...) {
 #' Predict Method for milr Fits
 #' 
 #' @param object A fitted obejct of class inheriting from \code{"milr"}.
-#' @param newdata A matrix with variables to predict.
-#' @param bag_newdata A vector. The labels of instances to bags.
+#' @param newdata Default is \code{NULL}. A matrix with variables to predict.
+#' @param bag_newdata Default is \code{NULL}. A vector. The labels of instances to bags.
+#'   If \code{newdata} and \code{bag_newdata} both are \code{NULL}, return the fitted result.
 #' @param type The type of prediction required. Default is \code{"bag"}, the predicted labels of bags.
 #'   The \code{"instance"} option returns the predicted labels of instances.
 #' @param ... further arguments passed to or from other methods.
 #' @export
 #' @method predict milr
-predict.milr <- function(object, newdata, bag_newdata, type = "bag", ...) {
-  stopifnot(length(type) == 1)
+predict.milr <- function(object, newdata = NULL, bag_newdata = NULL, type = "bag", ...) {
+  if (is.null(newdata) && is.null(bag_newdata))
+    return(fitted(object, type = type))
+  
+  if (is.null(newdata) && !is.null(bag_newdata))
+    stop("newdata cannot be NULL!")
+  if (!is.null(newdata) && is.null(bag_newdata))
+    stop("bag_newdata cannot be NULL!")
+  
+  assert_that(length(type) == 1)
   if (type == "bag") {
     return(coef(object) %>>% getMilrProb(cbind(1, newdata), bag_newdata) %>>%
              `>`(0.5) %>>% as.numeric)
@@ -184,12 +193,14 @@ milr <- function(y, x, bag, lambda = 0, numLambda = 20L, lambdaCriterion = "BIC"
     x <- matrix(x, ncol = 1)
   if (!is.matrix(x))
     x <- as.matrix(x)
+  
   # if column names of x is missing, assign xi
   if (is.null(colnames(x)))
     colnames(x) <- paste0("x", 1L:ncol(x))
   if (!all(y %in% c(0, 1)))
     stop("y must be 0 and 1.")
   bag <- as.integer(factor(bag))
+  
   # input check
   alpha <- 1
   assert_that(length(unique(y)) == 2, length(y) == nrow(x),

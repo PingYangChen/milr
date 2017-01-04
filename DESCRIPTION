@@ -2,7 +2,7 @@ Package: milr
 Type: Package
 Title: Multiple-Instance Logistic Regression with LASSO Penalty
 Version: 0.2.0
-Date: 2016-12-15
+Date: 2017-01-02
 Description: The multiple instance data set consists of many independent subjects 
     (called bags) and each subject is composed of several components (called instances). 
     The outcomes of such data set are binary or multinomial, and, we can only observe 

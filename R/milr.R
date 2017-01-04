@@ -4,19 +4,65 @@ coef.milr <- function(object, ...){
   return(object$best_model$coeffiecents)
 }
 
+#' Fitted Response of milr Fits
+#' 
+#' @param object A fitted obejct of class inheriting from \code{"milr"}.
+#' @param type The type of fitted response required. Default is \code{"bag"}, the fitted labels of bags.
+#'   The \code{"instance"} option returns the fitted labels of instances.
+#' @param ... further arguments passed to or from other methods.
 #' @export
 #' @method fitted milr
-fitted.milr <- function(object, ...){
-  return(object$best_model$fitted)
+#' @importFrom stats fitted
+fitted.milr <- function(object, type = "bag", ...) {
+  stopifnot(length(type) == 1)
+  if (type == "bag") {
+    return(object$best_model$fitted$bag)
+  } else if (type == "instance") {
+    return(object$best_model$fitted$instance)
+  }
+}
+
+#' Predict Method for milr Fits
+#' 
+#' @param object A fitted obejct of class inheriting from \code{"milr"}.
+#' @param newdata Default is \code{NULL}. A matrix with variables to predict.
+#' @param bag_newdata Default is \code{NULL}. A vector. The labels of instances to bags.
+#'   If \code{newdata} and \code{bag_newdata} both are \code{NULL}, return the fitted result.
+#' @param type The type of prediction required. Default is \code{"bag"}, the predicted labels of bags.
+#'   The \code{"instance"} option returns the predicted labels of instances.
+#' @param ... further arguments passed to or from other methods.
+#' @export
+#' @method predict milr
+#' @importFrom stats predict
+predict.milr <- function(object, newdata = NULL, bag_newdata = NULL, type = "bag", ...) {
+  if (is.null(newdata) && is.null(bag_newdata))
+    return(fitted(object, type = type))
+  
+  if (is.null(newdata) && !is.null(bag_newdata))
+    stop("newdata cannot be NULL!")
+  if (!is.null(newdata) && is.null(bag_newdata))
+    stop("bag_newdata cannot be NULL!")
+  
+  assert_that(length(type) == 1)
+  if (type == "bag") {
+    return(coef(object) %>>% (split(logit(cbind(1, newdata), .), bag_newdata)) %>>%
+             purrr::map_int(~1-prod(1-.) > 0.5))
+  } else if (type == "instance") {
+    return((coef(object) %>>% (logit(cbind(1, newdata), .))) > 0.5)
+  }
 }
 
 #' @export
-#' @method predict milr
-predict.milr <- function(object, newdata, bag_newdata, ...){
-	instance_predict <- (coef(object) %>>% (logit(cbind(1, newdata), .)) ) > 0.5
-	bag_predict <- coef(object) %>>% (split(logit(cbind(1, newdata), .), bag_newdata)) %>>%
-           purrr::map_int(~1-prod(1-.) > 0.5)
-  return(list(bag = bag_predict, instance = instance_predict))
+#' @method print milr
+print.milr <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  if (length(coef(x)) > 0) {
+    cat("Coefficients:\n")
+    print.default(format(coef(x), digits = digits), print.gap = 2, quote = FALSE)
+    cat("\n")
+  }
+  cat("Residual Deviance:   ", format(signif(x$best_model$deviance, digits)), "\n")
+  cat("              BIC:   ", format(signif(x$best_model$BIC, digits)), "\n")
+  invisible(x)
 }
 
 #' @export
@@ -81,14 +127,16 @@ cvIndex_f <- function(n, fold){
 #'  be chosen based on the optimality criterion, \code{lambdaCriterion}.  
 #'  Finally, if \code{lambda = -1}, then the optimal lambda value would be chosen automatically.
 #'  The default is 0. 
-#' @param nlambda an integer. Specify the length of tunning lambda values in atuo-tunning mode 
+#' @param numLambda An integer, the maximum length of LASSO-penalty. in atuo-tunning mode 
 #'  (\code{lambda = -1}). The default is 20.
 #' @param lambdaCriterion a string, the used optimality criterion for tuning the \code{lambda} value.
 #'  It can be specified with \code{lambdaCriterion = "BIC"} or \code{lambdaCriterion = "deviance"}.
 #' @param nfold an integer, the number of fold for cross-validation to choose the optimal \code{lambda} when
 #'  \code{lambdaCriterion = "deviance"}.
-#' @param maxit an integer, the maximum iteration for the EM algorithm.  The default is 1000.
+#' @param maxit an integer, the maximum iteration for the EM algorithm. The default is 1000.
+#' @param tolerance Convergence threshold for coordinate descent. The default is 1e-5.
 #' @return An object with S3 class "milr".
+#' \itemize{
 #' \item{lambda}{a vector of candidate lambda values.}
 #' \item{cv}{a vector of predictive deviance via \code{nfold}-fold cross validation
 #'  when \code{lambdaCriterion = "deviance"}.}
@@ -97,6 +145,7 @@ cvIndex_f <- function(n, fold){
 #' \item{best_index}{an integer, indicates the index of the best model among candidate lambda values.}
 #' \item{best_model}{a list of the information for the best model including deviance (not cv deviance), 
 #'  BIC, chosen lambda, coefficients, fitted values, log-likelihood and variances of coefficients.}
+#' }
 #' @examples
 #' set.seed(100)
 #' beta <- runif(5, -5, 5)
@@ -104,45 +153,42 @@ cvIndex_f <- function(n, fold){
 #' testData <- DGP(30, 3, beta)
 #' # default (not use LASSO)
 #' milr_result <- milr(trainData$Z, trainData$X, trainData$ID)
-#' coef(milr_result)      # coefficients
-#' fitted(milr_result)    # fitted values
 #' summary(milr_result)   # summary milr
-#' predict(milr_result, testData$X, testData$ID) # predicted label
+#' coef(milr_result)      # coefficients
+#' fitted(milr_result)    # fitted bag labels
+#' fitted(milr_result, type = "instance")    # fitted instance labels
+#' predict(milr_result, testData$X, testData$ID) # predicted bag labels
+#' predict(milr_result, testData$X, testData$ID, type = "instance") # predicted instance labels
 #' 
 #' # use BIC to choose penalty
 #' milr_result <- milr(trainData$Z, trainData$X, trainData$ID,
 #'   exp(seq(log(0.01), log(50),length = 30)))
-#' coef(milr_result)      # coefficients
-#' fitted(milr_result)    # fitted values
 #' summary(milr_result)   # summary milr
-#' predict(milr_result, testData$X, testData$ID) # predicted label
+#' coef(milr_result)      # coefficients
 #' 
 #' # use auto-tuning
 #' milr_result <- milr(trainData$Z, trainData$X, trainData$ID, lambda = -1)
 #' coef(milr_result)      # coefficients
-#' fitted(milr_result)    # fitted values
-#' summary(milr_result)   # summary milr
-#' predict(milr_result, testData$X, testData$ID) # predicted label
 #' 
 #' # use cv in auto-tuning
 #' milr_result <- milr(trainData$Z, trainData$X, trainData$ID, 
 #'                     lambda = -1, lambdaCriterion = "deviance")
 #' coef(milr_result)      # coefficients
-#' fitted(milr_result)    # fitted values
-#' summary(milr_result)   # summary milr
-#' predict(milr_result, testData$X, testData$ID) # predicted label
 #' @importFrom purrr map map_int map2_dbl map_dbl
 #' @importFrom numDeriv hessian
 #' @importFrom glmnet glmnet
 #' @name milr
 #' @rdname milr
 #' @export
-milr <- function(y, x, bag, lambda = 0, nlambda = 20, lambdaCriterion = "BIC", nfold = 10, maxit = 1000) {
+milr <- function(y, x, bag, lambda = 0, numLambda = 20, lambdaCriterion = "BIC", nfold = 10, maxit = 1000) {
   # if x is vector, transform it to matrix
   if (is.vector(x))
     x <- matrix(x, ncol = 1)
   if (!is.matrix(x))
     x <- as.matrix(x)
+  # if column names of x is missing, assign xi
+  if (is.null(colnames(x)))
+    colnames(x) <- paste0("x", 1L:ncol(x))
   if (!all(y %in% c(0, 1)))
     stop('y must be 0 and 1.')
   bag <- factor(bag) %>>% as.integer
@@ -166,13 +212,12 @@ milr <- function(y, x, bag, lambda = 0, nlambda = 20, lambdaCriterion = "BIC", n
     m <- table(bag)
     zi <- tapply(y, bag, function(x) sum(x) > 0) %>>% as.numeric
     lambdaMax <- sqrt(sum(m-1)) * sqrt(sum(m**(1-2*zi)))
-    lambda <- exp(seq(log(lambdaMax/1000), log(lambdaMax), length = nlambda))
+    lambda <- exp(seq(log(lambdaMax/1000), log(lambdaMax), length = numLambda))
   }
   
   # initial value for coefficients
   #init_beta <- coef(glm(y~x))
-  init_beta <- as.numeric(coef(glmnet::glmnet(x, y, standardize = T, 
-                                              alpha = 0, lambda = lambda[1])))
+  init_beta <- glmnet(x, y, standardize = T, alpha = 0, lambda = lambda[1]) %>>% coef %>>% as.vector
   beta_history <- matrix(NA, ncol(x) + 1, length(lambda) + 1)
   beta_history[ , 1] <- init_beta
   unique_bag <- unique(bag)

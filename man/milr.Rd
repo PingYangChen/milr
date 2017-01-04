@@ -4,8 +4,8 @@
 \alias{milr}
 \title{Maximum likelihood estimation of multiple-instance logistic regression with LASSO penalty}
 \usage{
-milr(y, x, bag, lambda = 0, numLambda = 20, lambdaCriterion = "BIC",
-  nfold = 10, maxit = 1000)
+milr(y, x, bag, lambda = 0, numLambda = 20L, lambdaCriterion = "BIC",
+  nfold = 10L, maxit = 1000L)
 }
 \arguments{
 \item{y}{a vector. Bag-level binary labels.}
@@ -30,8 +30,6 @@ It can be specified with \code{lambdaCriterion = "BIC"} or \code{lambdaCriterion
 \code{lambdaCriterion = "deviance"}.}
 
 \item{maxit}{an integer, the maximum iteration for the EM algorithm. The default is 1000.}
-
-\item{tolerance}{Convergence threshold for coordinate descent. The default is 1e-5.}
 }
 \value{
 An object with S3 class "milr".

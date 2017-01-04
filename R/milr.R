@@ -134,7 +134,6 @@ cvIndex_f <- function(n, fold){
 #' @param nfold an integer, the number of fold for cross-validation to choose the optimal \code{lambda} when
 #'  \code{lambdaCriterion = "deviance"}.
 #' @param maxit an integer, the maximum iteration for the EM algorithm. The default is 1000.
-#' @param tolerance Convergence threshold for coordinate descent. The default is 1e-5.
 #' @return An object with S3 class "milr".
 #' \itemize{
 #' \item{lambda}{a vector of candidate lambda values.}
@@ -180,7 +179,7 @@ cvIndex_f <- function(n, fold){
 #' @name milr
 #' @rdname milr
 #' @export
-milr <- function(y, x, bag, lambda = 0, numLambda = 20, lambdaCriterion = "BIC", nfold = 10, maxit = 1000) {
+milr <- function(y, x, bag, lambda = 0, numLambda = 20L, lambdaCriterion = "BIC", nfold = 10L, maxit = 1000L) {
   # if x is vector, transform it to matrix
   if (is.vector(x))
     x <- matrix(x, ncol = 1)

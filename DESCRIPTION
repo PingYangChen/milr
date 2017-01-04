@@ -40,6 +40,7 @@ LinkingTo: Rcpp,
 Suggests:
     testthat
 LazyData: yes
+SystemRequirements: GNU make
 License: MIT + file LICENSE
 Collate:
     'RcppExports.R'

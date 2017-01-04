@@ -3,7 +3,6 @@
 
 // [[Rcpp::depends(RcppArmadillo)]]
 #include <RcppArmadillo.h>
-#include <string>
 using namespace arma;
 
 void chk_mat(const mat& x, const std::string& varName);

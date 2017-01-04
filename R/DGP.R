@@ -10,7 +10,7 @@
 #' @examples
 #' data1 <- DGP(50, 3, runif(10, -5, 5))
 #' data2 <- DGP(50, sample(3:5, 50, TRUE), runif(10, -5, 5))
-#' @importFrom stats rnorm rbinom
+#' @importFrom stats rnorm
 #' @export
 DGP <- function(n, m, beta){
   assert_that(length(n) == 1, is.numeric(n), is.finite(n), n > 0, abs(n - floor(n)) < 1e-6)

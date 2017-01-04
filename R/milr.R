@@ -1,38 +1,61 @@
 #' @export
 #' @method coef milr
-coef.milr <- function(object, ...){
+coef.milr <- function(object, ...) {
   return(object$best_model$coeffiecents)
 }
 
 #' @export
 #' @method fitted milr
-fitted.milr <- function(object, ...){
+fitted.milr <- function(object, ...) {
   return(object$best_model$fitted)
 }
 
+#' Predict Method for milr Fits
+#' 
+#' @param object A fitted obejct of class inheriting from \code{"milr"}.
+#' @param newdata A matrix with variables to predict.
+#' @param bag_newdata A vector. The labels of instances to bags.
+#' @param type The type of prediction required. Default is \code{"bag"}, the predicted labels of bags.
+#'   The \code{"instance"} option returns the predicted labels of instances.
+#' @param ... further arguments passed to or from other methods.
 #' @export
 #' @method predict milr
-predict.milr <- function(object, newdata, bag_newdata, ...){
-	instance_predict <- (coef(object) %>>% (logit(cbind(1, newdata), .)) ) > 0.5
-	bag_predict <- coef(object) %>>% (split(logit(cbind(1, newdata), .), bag_newdata)) %>>%
-           purrr::map_int(~1-prod(1-.) > 0.5)
-  return(list(bag = bag_predict, instance = instance_predict))
+predict.milr <- function(object, newdata, bag_newdata, type = "bag", ...) {
+  stopifnot(length(type) == 1)
+  if (type == "bag") {
+    return(coef(object) %>>% getMilrProb(cbind(1, newdata), bag_newdata) %>>%
+             `>`(0.5) %>>% as.numeric)
+  } else if (type == "instance") {
+    return(logit(cbind(1, newdata), coef(object)) %>>% `>`(0.5) %>>% as.numeric)
+  }
+}
+
+#' @export
+#' @method print milr
+print.milr <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  if (length(coef(x)) > 0) {
+    cat("Coefficients:\n")
+    print.default(format(coef(x), digits = digits), print.gap = 2, quote = FALSE)
+    cat("\n")
+  }
+  cat("Residual Deviance:   ", format(signif(x$best_model$deviance, digits)), "\n")
+  cat("              BIC:   ", format(signif(x$best_model$BIC, digits)), "\n")
+  invisible(x)
 }
 
 #' @export
 #' @method summary milr
-summary.milr <- function(object, ...){
-  if (object$best_model$lambda_chosen == 0)
-  {
+summary.milr <- function(object, ...) {
+  if (object$best_model$lambda_chosen == 0) {
     summary <- list(loglik = object$best_model$loglik, 
 										beta = object$best_model$coeffiecents, 
 										se = sqrt(object$best_model$var),
                     z = object$best_model$coeffiecents / sqrt(object$best_model$var), 
 										lambda = object$best_model$lambda_chosen)
     summary$pvalue <- pnorm(abs(summary$z), 0, 1, FALSE) * 2
-  } else
-  {
-    summary <- list(loglik = object$best_model$loglik, beta = object$best_model$coeffiecents, 
+  } else {
+    summary <- list(loglik = object$best_model$loglik, 
+                    beta = object$best_model$coeffiecents, 
                     lambda = object$best_model$lambda_chosen)
   }
   class(summary) <- "summary.milr"
@@ -41,16 +64,14 @@ summary.milr <- function(object, ...){
 
 #' @export
 #' @method print summary.milr
-print.summary.milr <- function(x, digits = max(3L, getOption("digits") - 2L), ...){
+print.summary.milr <- function(x, digits = max(3L, getOption("digits") - 2L), ...) {
   message(sprintf("Log-Likelihood: %.3f.", x$loglik))
-  if (x$lambda == 0)
-  {
+  if (x$lambda == 0) {
     outMat <- cbind(x$beta, x$se, x$z, x$pvalue) %>>% 
       `colnames<-`(c("Estimate", "Std.Err", "Z value", "Pr(>z)"))
     message("Estimates:")
     printCoefmat(outMat, digits = digits)
-  } else
-  {
+  } else {
     message(sprintf("Chosen Penalty: %.3f.", x$lambda))
     outMat <- cbind(x$beta) %>>% `colnames<-`("Estimate")
     message("Estimates:")
@@ -59,7 +80,7 @@ print.summary.milr <- function(x, digits = max(3L, getOption("digits") - 2L), ..
 }
 
 # function of generation of cv index
-cvIndex_f <- function(n, fold){
+cvIndex_f <- function(n, fold) {
   fold_n <- n %/% fold
   rem <- n - fold_n * fold
   index <- rep(1:fold, fold_n)
@@ -67,7 +88,6 @@ cvIndex_f <- function(n, fold){
     index <- c(index, 1:rem)
   return(sample(index, length(index)))
 }
-
 
 #' Maximum likelihood estimation of multiple-instance logistic regression with LASSO penalty
 #' 
@@ -87,8 +107,11 @@ cvIndex_f <- function(n, fold){
 #'  It can be specified with \code{lambdaCriterion = "BIC"} or \code{lambdaCriterion = "deviance"}.
 #' @param nfold an integer, the number of fold for cross-validation to choose the optimal \code{lambda} when
 #'  \code{lambdaCriterion = "deviance"}.
-#' @param maxit an integer, the maximum iteration for the EM algorithm.  The default is 1000.
+#' @param maxit an integer, the maximum iteration for the EM algorithm. The default is 1000.
+#' @param numLambda An integer, the maximum length of LASSO-penalty. The default is 20.
+#' @param tolerance Convergence threshold for coordinate descent. The default is 1e-5.
 #' @return An object with S3 class "milr".
+#' \itemize{
 #' \item{lambda}{a vector of candidate lambda values.}
 #' \item{cv}{a vector of predictive deviance via \code{nfold}-fold cross validation
 #'  when \code{lambdaCriterion = "deviance"}.}
@@ -97,6 +120,7 @@ cvIndex_f <- function(n, fold){
 #' \item{best_index}{an integer, indicates the index of the best model among candidate lambda values.}
 #' \item{best_model}{a list of the information for the best model including deviance (not cv deviance), 
 #'  BIC, chosen lambda, coefficients, fitted values, log-likelihood and variances of coefficients.}
+#' }
 #' @examples
 #' set.seed(100)
 #' beta <- runif(5, -5, 5)
@@ -108,14 +132,16 @@ cvIndex_f <- function(n, fold){
 #' fitted(milr_result)    # fitted values
 #' summary(milr_result)   # summary milr
 #' predict(milr_result, testData$X, testData$ID) # predicted label
+#' predict(milr_result, testData$X, testData$ID, type = "instance") # predicted label
 #' 
 #' # use BIC to choose penalty
 #' milr_result <- milr(trainData$Z, trainData$X, trainData$ID,
-#'   exp(seq(log(0.01), log(50),length = 30)))
+#'   exp(seq(log(0.01), log(50), length = 30)))
 #' coef(milr_result)      # coefficients
 #' fitted(milr_result)    # fitted values
 #' summary(milr_result)   # summary milr
 #' predict(milr_result, testData$X, testData$ID) # predicted label
+#' predict(milr_result, testData$X, testData$ID, type = "instance") # predicted label
 #' 
 #' # use auto-tuning
 #' milr_result <- milr(trainData$Z, trainData$X, trainData$ID, lambda = -1)
@@ -123,6 +149,7 @@ cvIndex_f <- function(n, fold){
 #' fitted(milr_result)    # fitted values
 #' summary(milr_result)   # summary milr
 #' predict(milr_result, testData$X, testData$ID) # predicted label
+#' predict(milr_result, testData$X, testData$ID, type = "instance") # predicted label
 #' 
 #' # use cv in auto-tuning
 #' milr_result <- milr(trainData$Z, trainData$X, trainData$ID, 
@@ -131,21 +158,24 @@ cvIndex_f <- function(n, fold){
 #' fitted(milr_result)    # fitted values
 #' summary(milr_result)   # summary milr
 #' predict(milr_result, testData$X, testData$ID) # predicted label
-#' @importFrom purrr map map_int map2_dbl map_dbl
+#' predict(milr_result, testData$X, testData$ID, type = "instance") # predicted label
 #' @importFrom numDeriv hessian
 #' @importFrom glmnet glmnet
 #' @name milr
 #' @rdname milr
 #' @export
-milr <- function(y, x, bag, lambda = 0, nlambda = 20, lambdaCriterion = "BIC", nfold = 10, maxit = 1000) {
+milr <- function(y, x, bag, lambda = 0, lambdaCriterion = "BIC", nfold = 10L, maxit = 1000L, numLambda = 20L, tolerance = 1e-5) {
   # if x is vector, transform it to matrix
   if (is.vector(x))
     x <- matrix(x, ncol = 1)
   if (!is.matrix(x))
     x <- as.matrix(x)
+  # if column names of x is missing, assign xi
+  if (is.null(colnames(x)))
+    colnames(x) <- paste0("x", 1L:ncol(x))
   if (!all(y %in% c(0, 1)))
-    stop('y must be 0 and 1.')
-  bag <- factor(bag) %>>% as.integer
+    stop("y must be 0 and 1.")
+  bag <- as.integer(factor(bag))
   # input check
   alpha <- 1
   assert_that(length(unique(y)) == 2, length(y) == nrow(x),
@@ -154,53 +184,45 @@ milr <- function(y, x, bag, lambda = 0, nlambda = 20, lambdaCriterion = "BIC", n
               is.finite(alpha), is.numeric(alpha), is.finite(maxit), is.numeric(maxit), 
               abs(maxit - floor(maxit)) < 1e-4, nfold < nrow(x),
               lambdaCriterion %in% c("deviance", "BIC"))
-  loglik <- function(b, Z, X, ID){
-    pii <- split(as.data.frame(X), ID) %>>% purrr::map(~1-prod(1-logit(as.matrix(.), b)))
-    return(purrr::map2_dbl(split(Z, ID) %>>% purrr::map(unique), pii, 
-                           ~.x*log(.y)+(1-.x)*log(1-.y)) %>>% sum(na.rm = TRUE))
-  }
   
-  if (length(lambda) == 1 && all(lambda == -1))
-  {
-    message("The penalty term is selected automatically.")
+  if (length(lambda) == 1 && lambda == -1) {
+    message("The penalty term is selected automatically with ", numLambda, " candidates.")
     m <- table(bag)
     zi <- tapply(y, bag, function(x) sum(x) > 0) %>>% as.numeric
     lambdaMax <- sqrt(sum(m-1)) * sqrt(sum(m**(1-2*zi)))
     lambda <- exp(seq(log(lambdaMax/1000), log(lambdaMax), length = nlambda))
+  } else if (length(lambda) == 1 && lambda == 0) {
+    message("Lasso-penalty is not used.")
+  } else {
+    message("Use the user-defined lambda vector.")
   }
   
   # initial value for coefficients
   #init_beta <- coef(glm(y~x))
-  init_beta <- as.numeric(coef(glmnet::glmnet(x, y, standardize = T, 
-                                              alpha = 0, lambda = lambda[1])))
+  init_beta <- glmnet(x, y, standardize = T, alpha = 0, lambda = lambda[1]) %>>% coef %>>% as.vector
   beta_history <- matrix(NA, ncol(x) + 1, length(lambda) + 1)
   beta_history[ , 1] <- init_beta
   unique_bag <- unique(bag)
   n_bag <- length(unique_bag)
 	cv <- NULL
-  if (length(lambda) > 1)
-  {
+  if (length(lambda) > 1) {
     # save the history of betas along lambda
     message(sprintf("Using the criterion %s to choose optimized penalty.", lambdaCriterion))
 
-    if (lambdaCriterion == "BIC")
-    {
-      dev <- vector('numeric', length(lambda))
-      BIC <- vector('numeric', length(lambda))
-      for (i in seq_along(lambda))
-      {
-        beta_history[, i + 1] <- CLR_lasso(y, cbind(1, x), bag, beta_history[, i], lambda[i])
-        dev[i] <- -2 * loglik(beta_history[, i + 1], y, cbind(1, x), bag)
+    if (lambdaCriterion == "BIC") {
+      dev <- vector("numeric", length(lambda))
+      BIC <- vector("numeric", length(lambda))
+      for (i in seq_along(lambda)) {
+        beta_history[, i + 1] <- milr_cpp(y, cbind(1, x), bag, beta_history[, i], lambda[i], tolerance, alpha, maxit)
+        dev[i] <- -2 * getLogLikMilr(beta_history[, i + 1], y, cbind(1, x), bag)
         BIC[i] <- dev[i] + sum(beta_history[, i + 1] != 0) * log(n_bag)
       }
       locMin <- which.min(BIC)
-    } else if (lambdaCriterion == "deviance")
-    {
+    } else if (lambdaCriterion == "deviance") {
       # calculate the bag label
-      bagLvl <- tapply(y, bag, sum) %>>% (as.integer(. > 0))
+      bagLvl <- tapply(y, bag, function(x) any(x > 0))
       # avoid the sample size of one class is less than nfold to retrun error in cvIndex_f.
-      if (nfold > min(table(bagLvl)))
-      {
+      if (nfold > min(table(bagLvl))) {
         message("nfold is bigger than the number of size of one class.")
         message(sprintf("Therefore, nfold is changed to %i.", min(table(bagLvl))))
         nfold <- min(table(bagLvl))
@@ -209,27 +231,28 @@ milr <- function(y, x, bag, lambda = 0, nlambda = 20, lambdaCriterion = "BIC", n
       cvIndex_bag_p <- cvIndex_f(sum(bagLvl == 1), nfold)
       cvIndex_bag_n <- cvIndex_f(sum(bagLvl == 0), nfold)
       # convert the cv index on bag labels to cv index on samples
-      cvIndex_sample <- purrr::map(1:nfold, ~c(which(bagLvl == 1)[which(cvIndex_bag_p == .)],
-                                               which(bagLvl == 0)[which(cvIndex_bag_n == .)])) %>>%
-        purrr::map(~which(bag %in% unique_bag[.]))
+      cvIndex_sample <- lapply(1:nfold, function(x){
+        tmp <- c(which(bagLvl == 1)[which(cvIndex_bag_p == x)], which(bagLvl == 0)[which(cvIndex_bag_n == x)])
+        which(bag %in% unique_bag[tmp])
+      })
+      
       dev_cv <- matrix(NA, length(lambda), nfold)
-      dev <- vector('numeric', length(lambda))
-      BIC <- vector('numeric', length(lambda))
-      cv_betas <- purrr::map(1:nfold, ~beta_history)
-      for (i in seq_along(lambda))
-      {
+      dev <- vector("numeric", length(lambda))
+      BIC <- vector("numeric", length(lambda))
+      cv_betas <- replicate(nfold, beta_history, simplify = FALSE)
+      for (i in seq_along(lambda)) {
         # CV to calculate the deviances
-        for (j in 1:nfold)
-        {
+        for (j in 1:nfold) {
           trainSetIndex <- do.call(c, cvIndex_sample[setdiff(1:nfold, j)])
-          cv_betas[[j]][ , i + 1] <- CLR_lasso(y[trainSetIndex], cbind(1, x[trainSetIndex, ]), 
-                                               bag[trainSetIndex], cv_betas[[j]][ , i], lambda[i])
-          dev_cv[i, j] <- -2 * loglik(cv_betas[[j]][ , i + 1], y[cvIndex_sample[[j]]], 
+          cv_betas[[j]][ , i + 1] <- milr_cpp(y[trainSetIndex], cbind(1, x[trainSetIndex, ]), 
+                                              bag[trainSetIndex], cv_betas[[j]][ , i], lambda[i], 
+                                              tolerance, alpha, maxit)
+          dev_cv[i, j] <- -2 * getLogLikMilr(cv_betas[[j]][ , i + 1], y[cvIndex_sample[[j]]], 
                                       cbind(1, x[cvIndex_sample[[j]], ]), bag[cvIndex_sample[[j]]])
         }
         # calculate the beta under lambda
-        beta_history[, i + 1] <- CLR_lasso(y, cbind(1, x), bag, beta_history[, i], lambda[i])
-        dev[i] <- -2 * loglik(beta_history[, i + 1], y, cbind(1, x), bag)
+        beta_history[, i + 1] <- milr_cpp(y, cbind(1, x), bag, beta_history[, i], lambda[i], tolerance, alpha, maxit)
+        dev[i] <- -2 * getLogLikMilr(beta_history[, i + 1], y, cbind(1, x), bag)
         BIC[i] <- dev[i] + sum(beta_history[, i + 1] != 0) * log(n_bag)
       }
 			cv <- rowMeans(dev_cv)
@@ -238,37 +261,38 @@ milr <- function(y, x, bag, lambda = 0, nlambda = 20, lambdaCriterion = "BIC", n
     lambda_out <- lambda[locMin]
     message(sprintf("The chosen penalty throuth %s is %.4f.", lambdaCriterion, lambda[locMin]))
     beta <- beta_history[ , locMin + 1]
-  } else
-  {
-    beta_history[,2] <- CLR_lasso(y, cbind(1, x), bag, init_beta, lambda, alpha, maxit)  
+  } else {
+    beta_history[,2] <- milr_cpp(y, cbind(1, x), bag, init_beta, lambda, tolerance, alpha, maxit)  
 		beta <- beta_history[,2]
-    dev <- -2 * loglik(beta, y, cbind(1, x), bag)
+    dev <- -2 * getLogLikMilr(beta, y, cbind(1, x), bag)
     BIC <- dev + sum(beta != 0) * log(n_bag)
     lambda_out <- lambda
 		locMin <- 1
   }
   # return beta with names
   beta <- as.vector(beta) %>>% `names<-`(c("intercept", colnames(x)))
-	rownames(beta_history) <- c("intercept", colnames(x))
+  rownames(beta_history) <- c("intercept", colnames(x))
+	
   # fitted response
 	fit_yij <- (beta %>>% (logit(cbind(1, x), .)) > 0.5) %>>% as.numeric(.)
-  fit_y <- beta %>>% (split(logit(cbind(1, x), .), bag)) %>>%
-    purrr::map_int(~1-prod(1-.) > 0.5)
+  fit_y <- getMilrProb(beta, cbind(1, x), bag) %>>% `>`(0.5) %>>% as.numeric
+  
   # calculate the hessian matrix when without using lasso
   if (lambda_out == 0)
-    bateVar = -diag(solve(numDeriv::hessian(function(b) loglik(b, y, cbind(1, x), bag), beta)))
+    bateVar <- -diag(solve(hessian(function(b) getLogLikMilr(b, y, cbind(1, x), bag), beta)))
   else
-    bateVar = NULL
+    bateVar <- NULL
   out <- list(lambda = lambda, cv = cv, deviance = dev, BIC = BIC, 
-							beta = beta_history[,2:ncol(beta_history)],
+							beta = beta_history[, 2L:ncol(beta_history)],
 							best_index = locMin,
 							best_model = list(lambda_chosen = lambda_out, 
-																deviance = dev[locMin], BIC = BIC[locMin],
+																deviance = dev[locMin], 
+																BIC = BIC[locMin],
 																coeffiecents = beta, 
 																fitted = list(bag = fit_y, instance = fit_yij), 
-																loglik = loglik(beta, y, cbind(1, x), bag),
+																loglik = getLogLikMilr(beta, y, cbind(1, x), bag),
 																var = bateVar)
 							)
-  class(out) <- 'milr'
+  class(out) <- "milr"
   return(out)
 }

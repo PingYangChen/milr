@@ -17,7 +17,4 @@ An vector of the values of logit link.
 \description{
 calculate the values of logit link
 }
-\examples{
-logit(matrix(c(1, 0.5, -0.2, 0.3), 2), c(-0.5, -3)) # 0.5249792, 0.2404891
-}
 

@@ -32,7 +32,6 @@ r_binary_packages:
   - glmnet
   - plyr
   - assertthat
-  - pipeR
   - testthat
   
 # r_github_packages:  

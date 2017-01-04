@@ -24,15 +24,24 @@ fitted.softmax <- function(object, type = "bag", ...) {
 #' Predict Method for softmax Fits
 #' 
 #' @param object A fitted obejct of class inheriting from \code{"softmax"}.
-#' @param newdata A matrix with variables to predict.
-#' @param bag_newdata A vector. The labels of instances to bags.
+#' @param newdata Default is \code{NULL}. A matrix with variables to predict.
+#' @param bag_newdata Default is \code{NULL}.  A vector. The labels of instances to bags.
+#'   If \code{newdata} and \code{bag_newdata} both are \code{NULL}, return the fitted result.
 #' @param type The type of prediction required. Default is \code{"bag"}, the predicted labels of bags.
 #'   The \code{"instance"} option returns the predicted labels of instances.
 #' @param ... further arguments passed to or from other methods.
 #' @export
 #' @method predict softmax
-predict.softmax <- function(object, newdata, bag_newdata, type = "bag", ...) {
-  stopifnot(length(type) == 1)
+predict.softmax <- function(object, newdata = NULL, bag_newdata = NULL, type = "bag", ...) {
+  if (is.null(newdata) && is.null(bag_newdata))
+    return(fitted(object, type = type))
+  
+  if (is.null(newdata) && !is.null(bag_newdata))
+    stop("newdata cannot be NULL!")
+  if (!is.null(newdata) && is.null(bag_newdata))
+    stop("bag_newdata cannot be NULL!")
+
+  assert_that(length(type) == 1)
   if (type == "bag") {
     return(getSoftmaxBag(cbind(1, newdata), coef(object), bag_newdata, object$alpha))
   } else if (type == "instance") {
@@ -87,6 +96,7 @@ print.softmax <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
 #'	 of instances. in Advances in Knowledge Discovery and Data Mining, Springer, 272--281.
 #' }
 #' @export
+#' @importFrom stats glm coef optim
 softmax <- function(y, x, bag, alpha = 0, ...) {
   # if x is vector, transform it to matrix
   if (is.vector(x))

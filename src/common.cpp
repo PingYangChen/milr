@@ -1,4 +1,5 @@
 #include "common.h"
+#include <string>
 
 // function to check whether the input data with correct type
 void chk_mat(const mat& x, const std::string& varName){
@@ -13,6 +14,9 @@ void chk_mat(const mat& x, const std::string& varName){
 //' @param X A matrix, the design matrix.
 //' @param beta A vector, the coefficients.
 //' @return An vector of the values of logit link.
+//' @example
+//' logit(matrix(c(1, 0.5, -0.2, 0.3), 2), c(-0.5, -3)) # 0.5249792, 0.2404891
+//' @export
 // [[Rcpp::export]]
 arma::vec logit(const arma::mat& X, const arma::vec& beta){
   chk_mat(X, "X");

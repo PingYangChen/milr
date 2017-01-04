@@ -20,6 +20,9 @@ be chosen based on the optimality criterion, \code{lambdaCriterion}.
 Finally, if \code{lambda = -1}, then the optimal lambda value would be chosen automatically.
 The default is 0.}
 
+\item{nlambda}{an integer. Specify the length of tunning lambda values in atuo-tunning mode 
+(\code{lambda = -1}). The default is 20.}
+
 \item{lambdaCriterion}{a string, the used optimality criterion for tuning the \code{lambda} value.
 It can be specified with \code{lambdaCriterion = "BIC"} or \code{lambdaCriterion = "deviance"}.}
 
@@ -31,6 +34,7 @@ It can be specified with \code{lambdaCriterion = "BIC"} or \code{lambdaCriterion
 \item{numLambda}{An integer, the maximum length of LASSO-penalty. The default is 20.}
 
 \item{tolerance}{Convergence threshold for coordinate descent. The default is 1e-5.}
+
 }
 \value{
 An object with S3 class "milr".

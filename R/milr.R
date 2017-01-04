@@ -101,6 +101,8 @@ cvIndex_f <- function(n, fold) {
 #'  be chosen based on the optimality criterion, \code{lambdaCriterion}.  
 #'  Finally, if \code{lambda = -1}, then the optimal lambda value would be chosen automatically.
 #'  The default is 0. 
+#' @param nlambda an integer. Specify the length of tunning lambda values in atuo-tunning mode 
+#'  (\code{lambda = -1}). The default is 20.
 #' @param lambdaCriterion a string, the used optimality criterion for tuning the \code{lambda} value.
 #'  It can be specified with \code{lambdaCriterion = "BIC"} or \code{lambdaCriterion = "deviance"}.
 #' @param nfold an integer, the number of fold for cross-validation to choose the optimal \code{lambda} when
@@ -186,13 +188,13 @@ milr <- function(y, x, bag, lambda = 0, lambdaCriterion = "BIC", nfold = 10L, ma
   if (length(lambda) == 1 && lambda == -1) {
     message("The penalty term is selected automatically with ", numLambda, " candidates.")
     m <- table(bag)
-    zi <- tapply(y, bag, function(x) any(x > 0)) %>>% as.integer
-    lambdaMax <- sqrt(sum(m - 1)) * sqrt(sum(m ^ (1 - 2 * zi)))
-    lambda <- exp(seq(log(lambdaMax / 1000), log(lambdaMax), length = numLambda))
+    zi <- tapply(y, bag, function(x) sum(x) > 0) %>>% as.numeric
+    lambdaMax <- sqrt(sum(m-1)) * sqrt(sum(m**(1-2*zi)))
+    lambda <- exp(seq(log(lambdaMax/1000), log(lambdaMax), length = nlambda))
   } else if (length(lambda) == 1 && lambda == 0) {
     message("Lasso-penalty is not used.")
   } else {
-    message("Use the user-defined lambdas.")
+    message("Use the user-defined lambda vector.")
   }
   
   # initial value for coefficients

@@ -1,70 +1,114 @@
-#include "common.h"
+#include <math.h>
+// [[Rcpp::depends(RcppArmadillo)]]
+#include <RcppArmadillo.h>
+#include <Rcpp.h>
+using namespace Rcpp;
+using namespace arma;
 
-//[[Rcpp::export]]
-arma::vec EM_Y(const arma::field<arma::uvec>& bagField, const arma::vec& p_instance) {
+//' logit link function
+//'
+//' calculate the values of logit link
+//' 
+//' @param X A matrix, the design matrix.
+//' @param beta A vector, the coefficients.
+//' @return An vector of the values of logit link.
+//' @examples
+//' logit(matrix(c(1, 0.5, -0.2, 0.3), 2), c(-0.5, -3)) # 0.5249792, 0.2404891
+//' @export
+// [[Rcpp::export]]
+arma::vec logit(const arma::mat& X, const arma::vec& beta){
+  return pow(1.0 + exp(-X*beta), -1.0);
+}
+
+// q is the expected value of the instance (Y) given that the label (Z) is 1
+arma::vec q(const arma::vec& p_Y, const arma::uvec& ID){
   // p_bag is P(label of bag_i is 1) = 1-prod(1-p_ij)
-  vec p_bag = ones<vec>(p_instance.n_elem);
-  for (uword i =0; i < bagField.n_elem; ++i) 
-    p_bag.elem(bagField(i)).fill(1 - prod(1.0 - p_instance.elem(bagField(i))));
+  uvec ID_table = sort(unique(ID));
+  vec p_bag = ones<vec>(ID_table.n_elem);
+  uvec loc_bag = zeros<uvec>(ID.n_elem), tmp;
+  for(uword i = 0; i < ID_table.size(); i++)
+  {
+    tmp = find(ID == ID_table(i));
+    loc_bag.elem(tmp).fill(i);
+    p_bag(i) = prod(1.0 - p_Y.elem(tmp));
+  }
+  p_bag = 1 - p_bag;
   
-  vec q = p_instance;
-  q.elem(find(p_instance == 0.0)).zeros();
+  vec q = p_Y;
+  q.elem(find(p_Y == 0.0)).zeros();
   uvec loc_nonzero_q = find(q > 0.0);
-  q.elem(loc_nonzero_q) /= p_bag.elem(loc_nonzero_q);
+  q.elem(loc_nonzero_q) /= p_bag.elem(loc_bag.elem(loc_nonzero_q));
   q.elem(find_nonfinite(q)).ones();
   return(q);
 }
 
 //[[Rcpp::export]]
-arma::vec milr_cpp(const arma::vec& Z, const arma::mat& X, const arma::vec& bag,
-                   const arma::vec& init_beta, const double& lambda, const double& tolerance, 
-                   const double& alpha,  const double& maxit) {
-  chk_mat(Z, "Z");
-  chk_mat(X, "X");
-  chk_mat(bag, "bag");
-  chk_mat(init_beta, "init_beta");
-  
+arma::vec CLR_lasso(const arma::vec& Z, const arma::mat& X, const arma::vec& ID_dbl, 
+                    const arma::vec& init_beta, const double& lambda, double alpha = 1,
+                    double maxit = 500){
+  double iter = 1.0;
   uword p = X.n_cols, n = X.n_rows;
-  // convert bag to uword vec
-  uvec bag2 = conv_to<uvec>::from(bag - 1);
-  uvec uniBag = sort(unique(bag2));
-  arma::field<arma::uvec> bagField(uniBag.n_elem);
-  for (uword i = 0; i < uniBag.n_elem; ++i)
-    bagField(i) = find(bag2 == uniBag(i));
-  
+  uvec ID = conv_to<uvec>::from(ID_dbl);
+  ID -= 1;
+  double diff = 1.0, W = 0.25;
   // use the upper bound 0.25 to approximate W = p(1-p)
-  double iter = 1.0, eps = 1.0, W = 0.25;
+  vec beta = init_beta;
   
   // X is normalized prior to data analysis
   // so XWX = W * sum(x^2) = W * (n-1)
   double XWX = W * ((double) n - 1.0);
-  vec beta = init_beta, new_beta(p), p_vec(n), q_vec(n), S(p);
+  vec new_beta(p), p_vec(n), q_vec(n), U(n);
   
-  while (eps > tolerance && iter < maxit) {
+  while(diff > 1e-5 && iter < maxit){
     p_vec = logit(X, beta);
-    // To avoid coefficients diverging in order to achieve fitted probabilities of 0
+    // To avoid coefficients diverging in order to achieve fitted probabilities of 0 
     // or 1, when a probability is within 10^(-5) of 1, we set it to 1. 0 is treated
     // similarly.
     p_vec.elem(find(p_vec < 1e-5)).zeros();
-    q_vec = EM_Y(bagField, p_vec);
-    S = X.t() * (Z % q_vec - p_vec);
-    for (uword k = 0; k < p; ++k) {
+    q_vec = q(p_vec, ID);
+    vec S = trans(X) * (Z % q_vec - p_vec);
+    for (uword k = 0; k < p; k++)
+    {
       double tmp = S[k] + XWX * beta[k];
-      if (k == 0) {
-        new_beta[k] = tmp / XWX;
-      } else {
-        if(abs(tmp) <= lambda * alpha)
-          new_beta[k] = 0.0;
-        if(tmp > lambda * alpha)
-          new_beta[k] = (tmp - lambda) / (XWX + lambda * (1.0 - alpha));
-        if(tmp < -lambda * alpha)
-          new_beta[k] = (tmp + lambda) / (XWX + lambda * (1.0 - alpha));
+      if (k == 0)
+      {
+        new_beta[k] = tmp/XWX;
+      } else
+      {
+        if(abs(tmp) <= lambda*alpha)
+          new_beta[k] = 0;
+        if(tmp > lambda*alpha)
+          new_beta[k] = (tmp-lambda)/(XWX+lambda*(1-alpha));
+        if(tmp < -lambda*alpha)
+          new_beta[k] = (tmp+lambda)/(XWX+lambda*(1-alpha));
       }
     }
     // if the relative difference is less than tol, stop iterating
-    eps = norm(new_beta - beta, 2) / norm(beta, 2);
+    diff = norm(new_beta - beta, 2) / norm(beta, 2);
     beta = new_beta;
     iter++;
   }
-  return beta;
+  return(beta);
+}
+
+// [[Rcpp::export]]
+double softmaxlogL(const arma::vec& bag, const arma::mat& X, const arma::vec& Z, 
+                   const arma::vec& beta, const double& alpha){
+  vec p_vec = logit(X, beta);
+  p_vec.elem(find(p_vec < 1e-7)).fill(1e-7);
+  p_vec.elem(find(p_vec > 1-1e-7)).fill(1-1e-7);
+  vec p_bag = zeros<vec>(Z.n_elem);
+  vec denominator = zeros<vec>(Z.n_elem);
+  double tmp;
+  
+  for(uword i = 0; i < bag.n_elem; i++)
+  {
+    tmp = exp(alpha * p_vec[i]);
+    p_bag[bag[i] - 1] += p_vec[i] * tmp;
+    denominator[bag[i] - 1] += tmp;
+  }
+  p_bag /= denominator;
+  
+  double sum1 = -sum(Z % log(p_bag) + (1 - Z) % log(1-p_bag));
+  return sum1;
 }

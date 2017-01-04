@@ -4,14 +4,16 @@
 \alias{predict.softmax}
 \title{Predict Method for softmax Fits}
 \usage{
-\method{predict}{softmax}(object, newdata, bag_newdata, type = "bag", ...)
+\method{predict}{softmax}(object, newdata = NULL, bag_newdata = NULL,
+  type = "bag", ...)
 }
 \arguments{
 \item{object}{A fitted obejct of class inheriting from \code{"softmax"}.}
 
-\item{newdata}{A matrix with variables to predict.}
+\item{newdata}{Default is \code{NULL}. A matrix with variables to predict.}
 
-\item{bag_newdata}{A vector. The labels of instances to bags.}
+\item{bag_newdata}{Default is \code{NULL}.  A vector. The labels of instances to bags.
+If \code{newdata} and \code{bag_newdata} both are \code{NULL}, return the fitted result.}
 
 \item{type}{The type of prediction required. Default is \code{"bag"}, the predicted labels of bags.
 The \code{"instance"} option returns the predicted labels of instances.}

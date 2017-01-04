@@ -25,5 +25,4 @@
 #' @importFrom RcppParallel RcppParallelLibs
 #' @importFrom pipeR %>>%
 #' @importFrom utils globalVariables
-#' @importFrom stats coef glm optim pnorm printCoefmat rbinom rnorm
 utils::globalVariables(c(".", "%>>%"))

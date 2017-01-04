@@ -12,6 +12,7 @@ coef.milr <- function(object, ...) {
 #' @param ... further arguments passed to or from other methods.
 #' @export
 #' @method fitted milr
+#' @importFrom stats fitted
 fitted.milr <- function(object, type = "bag", ...) {
   stopifnot(length(type) == 1)
   if (type == "bag") {
@@ -32,6 +33,7 @@ fitted.milr <- function(object, type = "bag", ...) {
 #' @param ... further arguments passed to or from other methods.
 #' @export
 #' @method predict milr
+#' @importFrom stats predict
 predict.milr <- function(object, newdata = NULL, bag_newdata = NULL, type = "bag", ...) {
   if (is.null(newdata) && is.null(bag_newdata))
     return(fitted(object, type = type))
@@ -65,6 +67,7 @@ print.milr <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
 
 #' @export
 #' @method summary milr
+#' @importFrom stats pnorm
 summary.milr <- function(object, ...) {
   if (object$best_model$lambda_chosen == 0) {
     summary <- list(loglik = object$best_model$loglik, 
@@ -84,6 +87,7 @@ summary.milr <- function(object, ...) {
 
 #' @export
 #' @method print summary.milr
+#' @importFrom stats printCoefmat
 print.summary.milr <- function(x, digits = max(3L, getOption("digits") - 2L), ...) {
   message(sprintf("Log-Likelihood: %.3f.", x$loglik))
   if (x$lambda == 0) {

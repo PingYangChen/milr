@@ -96,6 +96,7 @@ print.softmax <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
 #'	 of instances. in Advances in Knowledge Discovery and Data Mining, Springer, 272--281.
 #' }
 #' @export
+#' @importFrom stats glm coef optim
 softmax <- function(y, x, bag, alpha = 0, ...) {
   # if x is vector, transform it to matrix
   if (is.vector(x))

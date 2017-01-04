@@ -33,13 +33,15 @@ Imports:
     pipeR (>= 0.5),
     numDeriv,
     Rcpp (>= 0.12.0),
-    glmnet
+    glmnet,
+    RcppParallel
 LinkingTo: Rcpp,
     RcppArmadillo,
     RcppParallel
 Suggests:
     testthat
 LazyData: yes
+SystemRequirements: GNU make
 License: MIT + file LICENSE
 Collate:
     'RcppExports.R'

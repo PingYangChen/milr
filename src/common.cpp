@@ -1,4 +1,5 @@
 #include "common.h"
+#include <string>
 
 // function to check whether the input data with correct type
 void chk_mat(const mat& x, const std::string& varName){

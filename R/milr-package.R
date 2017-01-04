@@ -21,9 +21,8 @@
 #' @name milr-package
 #' @useDynLib milr
 #' @import assertthat
-#' @importFrom glmnet glmnet
 #' @importFrom Rcpp cppFunction sourceCpp
+#' @importFrom RcppParallel RcppParallelLibs
 #' @importFrom pipeR %>>%
-#' @importFrom utils globalVariables 
-#' @importFrom stats coef glm optim pnorm printCoefmat rbinom rnorm
+#' @importFrom utils globalVariables
 utils::globalVariables(c(".", "%>>%"))

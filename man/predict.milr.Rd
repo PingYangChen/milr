@@ -4,16 +4,14 @@
 \alias{predict.milr}
 \title{Predict Method for milr Fits}
 \usage{
-\method{predict}{milr}(object, newdata = NULL, bag_newdata = NULL,
-  type = "bag", ...)
+\method{predict}{milr}(object, newdata, bag_newdata, type = "bag", ...)
 }
 \arguments{
 \item{object}{A fitted obejct of class inheriting from \code{"milr"}.}
 
-\item{newdata}{Default is \code{NULL}. A matrix with variables to predict.}
+\item{newdata}{A matrix with variables to predict.}
 
-\item{bag_newdata}{Default is \code{NULL}. A vector. The labels of instances to bags.
-If \code{newdata} and \code{bag_newdata} both are \code{NULL}, return the fitted result.}
+\item{bag_newdata}{A vector. The labels of instances to bags.}
 
 \item{type}{The type of prediction required. Default is \code{"bag"}, the predicted labels of bags.
 The \code{"instance"} option returns the predicted labels of instances.}

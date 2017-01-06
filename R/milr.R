@@ -133,7 +133,7 @@ cvIndex_f <- function(n, fold){
 #'  It can be specified with \code{lambdaCriterion = "BIC"} or \code{lambdaCriterion = "deviance"}.
 #' @param nfold an integer, the number of fold for cross-validation to choose the optimal \code{lambda} when
 #'  \code{lambdaCriterion = "deviance"}.
-#' @param maxit an integer, the maximum iteration for the EM algorithm. The default is 1000.
+#' @param maxit an integer, the maximum iteration for the EM algorithm. The default is 500.
 #' @return An object with S3 class "milr".
 #' \itemize{
 #' \item{lambda}{a vector of candidate lambda values.}
@@ -179,7 +179,7 @@ cvIndex_f <- function(n, fold){
 #' @name milr
 #' @rdname milr
 #' @export
-milr <- function(y, x, bag, lambda = 0, numLambda = 20L, lambdaCriterion = "BIC", nfold = 10L, maxit = 1000L) {
+milr <- function(y, x, bag, lambda = 0, numLambda = 20L, lambdaCriterion = "BIC", nfold = 10L, maxit = 500L) {
   # if x is vector, transform it to matrix
   if (is.vector(x))
     x <- matrix(x, ncol = 1)
@@ -233,7 +233,7 @@ milr <- function(y, x, bag, lambda = 0, numLambda = 20L, lambdaCriterion = "BIC"
       BIC <- vector('numeric', length(lambda))
       for (i in seq_along(lambda))
       {
-        beta_history[, i + 1] <- CLR_lasso(y, cbind(1, x), bag, beta_history[, i], lambda[i])
+        beta_history[, i + 1] <- CLR_lasso(y, cbind(1, x), bag, beta_history[, i], lambda[i], alpha, maxit)
         dev[i] <- -2 * loglik(beta_history[, i + 1], y, cbind(1, x), bag)
         BIC[i] <- dev[i] + sum(beta_history[, i + 1] != 0) * log(n_bag)
       }
@@ -267,12 +267,12 @@ milr <- function(y, x, bag, lambda = 0, numLambda = 20L, lambdaCriterion = "BIC"
         {
           trainSetIndex <- do.call(c, cvIndex_sample[setdiff(1:nfold, j)])
           cv_betas[[j]][ , i + 1] <- CLR_lasso(y[trainSetIndex], cbind(1, x[trainSetIndex, ]), 
-                                               bag[trainSetIndex], cv_betas[[j]][ , i], lambda[i])
+                                               bag[trainSetIndex], cv_betas[[j]][ , i], lambda[i], alpha, maxit)
           dev_cv[i, j] <- -2 * loglik(cv_betas[[j]][ , i + 1], y[cvIndex_sample[[j]]], 
                                       cbind(1, x[cvIndex_sample[[j]], ]), bag[cvIndex_sample[[j]]])
         }
         # calculate the beta under lambda
-        beta_history[, i + 1] <- CLR_lasso(y, cbind(1, x), bag, beta_history[, i], lambda[i])
+        beta_history[, i + 1] <- CLR_lasso(y, cbind(1, x), bag, beta_history[, i], lambda[i], alpha, maxit)
         dev[i] <- -2 * loglik(beta_history[, i + 1], y, cbind(1, x), bag)
         BIC[i] <- dev[i] + sum(beta_history[, i + 1] != 0) * log(n_bag)
       }

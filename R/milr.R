@@ -191,7 +191,8 @@ cvIndex_f <- function(n, fold) {
 #' @name milr
 #' @rdname milr
 #' @export
-milr <- function(y, x, bag, lambda = 0, numLambda = 20L, lambdaCriterion = "BIC", nfold = 10L, maxit = 1000L, tolerance = 1e-5) {
+milr <- function(y, x, bag, lambda = 0, numLambda = 20L, lambdaCriterion = "BIC", 
+                 nfold = 10L, maxit = 500L, tolerance = 1e-5) {
   # if x is vector, transform it to matrix
   if (is.vector(x))
     x <- matrix(x, ncol = 1)
@@ -277,7 +278,7 @@ milr <- function(y, x, bag, lambda = 0, numLambda = 20L, lambdaCriterion = "BIC"
                                               bag[trainSetIndex], cv_betas[[j]][ , i], lambda[i], 
                                               tolerance, alpha, maxit)
           dev_cv[i, j] <- -2 * getLogLikMilr(cv_betas[[j]][ , i + 1], y[cvIndex_sample[[j]]], 
-                                      cbind(1, x[cvIndex_sample[[j]], ]), bag[cvIndex_sample[[j]]])
+                                             cbind(1, x[cvIndex_sample[[j]], ]), bag[cvIndex_sample[[j]]])
         }
         # calculate the beta under lambda
         beta_history[, i + 1] <- milr_cpp(y, cbind(1, x), bag, beta_history[, i], lambda[i], tolerance, alpha, maxit)

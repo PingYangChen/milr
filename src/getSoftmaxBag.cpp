@@ -22,7 +22,7 @@ Rcpp::IntegerVector getSoftmaxBag(const arma::mat& X, const arma::vec& beta, con
   Rcpp::IntegerVector out(uniBag.n_elem);
   
   for (uword i = 0; i < uniBag.n_elem; ++i) {
-    idx = find(bag2 == i);
+    idx = find(bag2 == uniBag(i));
     p1 = logit(X.rows(idx), beta);
     tmp = exp(p1.elem(find_finite(p1)) * alpha);
     prob = sum(p1.elem(find_finite(p1)) % tmp) / sum(tmp);

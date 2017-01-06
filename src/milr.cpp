@@ -26,7 +26,7 @@ arma::vec milr_cpp(const arma::vec& Z, const arma::mat& X, const arma::vec& bag,
   
   uword p = X.n_cols, n = X.n_rows;
   // convert bag to uword vec
-  uvec bag2 = conv_to<uvec>::from(bag - 1);
+  uvec bag2 = conv_to<uvec>::from(bag);
   uvec uniBag = sort(unique(bag2));
   arma::field<arma::uvec> bagField(uniBag.n_elem);
   for (uword i = 0; i < uniBag.n_elem; ++i)
@@ -64,7 +64,7 @@ arma::vec milr_cpp(const arma::vec& Z, const arma::mat& X, const arma::vec& bag,
     // if the relative difference is less than tol, stop iterating
     eps = norm(new_beta - beta, 2) / norm(beta, 2);
     beta = new_beta;
-    iter++;
+    ++iter;
   }
   return beta;
 }

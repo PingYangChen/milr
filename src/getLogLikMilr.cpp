@@ -2,7 +2,7 @@
 // [[Rcpp::depends(RcppParallel)]]
 #include <RcppParallel.h>
 
-struct Worker_getLogLikMilr : public RcppParallel::Worker {   
+struct Worker_getLogLikMilr : public RcppParallel::Worker {
   const uvec& bag2;
   const uvec& uniBag;
   const vec& y;
@@ -20,7 +20,7 @@ struct Worker_getLogLikMilr : public RcppParallel::Worker {
   void operator()(std::size_t begin, std::size_t end) {
     for (uword i = begin; i < end; ++i) {
       uvec idx = find(bag2 == uniBag(i));
-      double prob = 1 - prod(1.0 - logit(X.rows(idx), beta));
+      double prob = std::min(1 - 1e-16, std::max(1e-16, 1 - prod(1.0 - logit(X.rows(idx), beta))));
       logLikMilr += y(idx(0)) * log(prob) + (1 - y(idx(0))) * log(1 - prob);
     }
   }

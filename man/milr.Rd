@@ -5,7 +5,7 @@
 \title{Maximum likelihood estimation of multiple-instance logistic regression with LASSO penalty}
 \usage{
 milr(y, x, bag, lambda = 0, numLambda = 20L, lambdaCriterion = "BIC",
-  nfold = 10L, maxit = 1000L, tolerance = 1e-05)
+  nfold = 10L, maxit = 100000L, tolerance = 1e-07)
 }
 \arguments{
 \item{y}{a vector. Bag-level binary labels.}

@@ -32,14 +32,12 @@ addons:
 
 r_github_packages:
   - renkun-ken/pipeR
-  - kevinushey/rex
   - jimhester/covr
 
 r_binary_packages:
   - devtools
   - numDeriv
   - glmnet
-  - plyr
   - assertthat
   - testthat
   - Rcpp

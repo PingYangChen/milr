@@ -1,5 +1,5 @@
 language: R
-r: devel
+sudo: false
 
 r_build_args: --no-build-vignettes --no-manual --no-resave-data
 r_check_args: --no-build-vignettes --no-manual
@@ -10,15 +10,14 @@ repos:
 
 matrix:
   include:
-    - os: linux
-      dist: trusty
-      sudo: required
+    - r: release
+    - r: oldrel
+    - r: devel
     - os: osx
-      osx_image: xcode6.1
-      sudo: required
+    - os: linux
   allow_failures:
     - os: osx
-    
+
 compiler:
   - gcc
   - clang
@@ -26,14 +25,15 @@ compiler:
 addons:
  apt:
    sources:
-   - ubuntu-toolchain-r-test
+     - ubuntu-toolchain-r-test
    packages:
-   - gcc-4.9
-   - g++-4.9
+     - gcc-4.9
+     - g++-4.9
 
-before_install:
-  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then curl -O http://r.research.att.com/libs/gfortran-4.8.2-darwin13.tar.bz2 ; fi
-  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then sudo tar fvxz gfortran-4.8.2-darwin13.tar.bz2 -C / ; fi
+r_github_packages:
+  - renkun-ken/pipeR
+  - kevinushey/rex
+  - jimhester/covr
 
 r_binary_packages:
   - devtools
@@ -46,13 +46,8 @@ r_binary_packages:
   - RcppArmadillo
   - RcppParallel
 
-after_failure:
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cat /home/travis/build/ChingChuan-Chen/milr/milr.Rcheck/00install.out; fi
-  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then cat /Users/travis/build/ChingChuan-Chen/milr/milr.Rcheck/00install.out; fi
-
 after_success:
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then cat /home/travis/build/ChingChuan-Chen/milr/milr.Rcheck/00install.out; fi
-  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then cat /Users/travis/build/ChingChuan-Chen/milr/milr.Rcheck/00check.log; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then Rscript -e 'covr::codecov()'; fi
 
 notifications:
   email:

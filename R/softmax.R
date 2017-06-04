@@ -33,15 +33,14 @@ fitted.softmax <- function(object, type = "bag", ...) {
 #' @export
 #' @method predict softmax
 predict.softmax <- function(object, newdata = NULL, bag_newdata = NULL, type = "bag", ...) {
+  stopifnot(length(type) == 1, type %in% c("bag", "instance"))
   if (is.null(newdata) && is.null(bag_newdata))
     return(fitted(object, type = type))
-  
   if (is.null(newdata) && !is.null(bag_newdata))
     stop("newdata cannot be NULL!")
   if (!is.null(newdata) && is.null(bag_newdata))
     stop("bag_newdata cannot be NULL!")
-
-  assert_that(length(type) == 1)
+  
   if (type == "bag") {
     return(getSoftmaxBag(cbind(1, newdata), coef(object), bag_newdata, object$alpha))
   } else if (type == "instance") {
@@ -109,9 +108,9 @@ softmax <- function(y, x, bag, alpha = 0, ...) {
   if (!all(y %in% c(0, 1)))
     stop('y must be 0 and 1.')
   # input check
-  assert_that(length(unique(y)) == 2L, length(y) == nrow(x),
-              all(is.finite(y)), is.numeric(y), all(is.finite(x)), is.numeric(x),  
-              alpha >= 0, is.finite(alpha), is.numeric(alpha))
+  stopifnot(length(unique(y)) == 2L, length(y) == nrow(x),
+            all(is.finite(y)), is.numeric(y), all(is.finite(x)), is.numeric(x),  
+            alpha >= 0, is.finite(alpha), is.numeric(alpha))
   
   # initial value for coefficients
   init_beta <- coef(glm(y ~ x))

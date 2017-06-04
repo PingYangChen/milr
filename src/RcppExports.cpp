@@ -59,21 +59,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// EM_Y
-arma::vec EM_Y(const arma::field<arma::uvec>& bagField, const arma::vec& p_instance);
-RcppExport SEXP milr_EM_Y(SEXP bagFieldSEXP, SEXP p_instanceSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::field<arma::uvec>& >::type bagField(bagFieldSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type p_instance(p_instanceSEXP);
-    rcpp_result_gen = Rcpp::wrap(EM_Y(bagField, p_instance));
-    return rcpp_result_gen;
-END_RCPP
-}
 // milr_cpp
-arma::vec milr_cpp(const arma::vec& Z, const arma::mat& X, const arma::vec& bag, const arma::vec& init_beta, const double& lambda, const double& tolerance, const double& alpha, const double& maxit);
-RcppExport SEXP milr_milr_cpp(SEXP ZSEXP, SEXP XSEXP, SEXP bagSEXP, SEXP init_betaSEXP, SEXP lambdaSEXP, SEXP toleranceSEXP, SEXP alphaSEXP, SEXP maxitSEXP) {
+arma::vec milr_cpp(const arma::vec& Z, const arma::mat& X, const arma::vec& bag, const arma::vec& init_beta, const double& lambda, const double& alpha, const double& maxit);
+RcppExport SEXP milr_milr_cpp(SEXP ZSEXP, SEXP XSEXP, SEXP bagSEXP, SEXP init_betaSEXP, SEXP lambdaSEXP, SEXP alphaSEXP, SEXP maxitSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -82,10 +70,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::vec& >::type bag(bagSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type init_beta(init_betaSEXP);
     Rcpp::traits::input_parameter< const double& >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< const double& >::type tolerance(toleranceSEXP);
     Rcpp::traits::input_parameter< const double& >::type alpha(alphaSEXP);
     Rcpp::traits::input_parameter< const double& >::type maxit(maxitSEXP);
-    rcpp_result_gen = Rcpp::wrap(milr_cpp(Z, X, bag, init_beta, lambda, tolerance, alpha, maxit));
+    rcpp_result_gen = Rcpp::wrap(milr_cpp(Z, X, bag, init_beta, lambda, alpha, maxit));
     return rcpp_result_gen;
 END_RCPP
 }

@@ -12,10 +12,10 @@
 #' data2 <- DGP(50, sample(3:5, 50, TRUE), runif(10, -5, 5))
 #' @importFrom stats rnorm rbinom
 #' @export
-DGP <- function(n, m, beta){
-  assert_that(length(n) == 1, is.numeric(n), is.finite(n), n > 0, abs(n - floor(n)) < 1e-6)
-  assert_that(all(is.numeric(m)), all(is.finite(m)), all(m > 0), all(abs(m - floor(m)) < 1e-6))
-  assert_that(all(is.numeric(beta)), all(is.finite(beta)))
+DGP <- function(n, m, beta) {
+  stopifnot(length(n) == 1, is.numeric(n), is.finite(n), n > 0, abs(n - floor(n)) < 1e-6)
+  stopifnot(all(is.numeric(m)), all(is.finite(m)), all(m > 0), all(abs(m - floor(m)) < 1e-6))
+  stopifnot(all(is.numeric(beta)), all(is.finite(beta)))
   
   p <- length(beta)
   if (length(m) < n)
@@ -28,7 +28,7 @@ DGP <- function(n, m, beta){
   # generate output of each instances
   Y <- rbinom(sum(m), 1L, logit(X, beta))
   # find the bag response
-  Z <- tapply(Y, ID, function(x){
+  Z <- tapply(Y, ID, function(x) {
     if (any(x == 1L))
       return(rep(1L, length(x)))
     return(rep(0L, length(x)))

@@ -20,9 +20,7 @@
 #' @docType package
 #' @name milr-package
 #' @useDynLib milr
-#' @import assertthat
 #' @importFrom Rcpp cppFunction sourceCpp
-#' @importFrom RcppParallel RcppParallelLibs
 #' @importFrom pipeR %>>%
 #' @importFrom utils globalVariables
 utils::globalVariables(c(".", "%>>%"))

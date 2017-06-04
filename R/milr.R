@@ -35,15 +35,14 @@ fitted.milr <- function(object, type = "bag", ...) {
 #' @method predict milr
 #' @importFrom stats predict
 predict.milr <- function(object, newdata = NULL, bag_newdata = NULL, type = "bag", ...) {
+  stopifnot(length(type) == 1, type %in% c("bag", "instance"))
   if (is.null(newdata) && is.null(bag_newdata))
     return(fitted(object, type = type))
-  
   if (is.null(newdata) && !is.null(bag_newdata))
     stop("newdata cannot be NULL!")
   if (!is.null(newdata) && is.null(bag_newdata))
     stop("bag_newdata cannot be NULL!")
   
-  assert_that(length(type) == 1)
   if (type == "bag") {
     return(coef(object) %>>% getMilrProb(cbind(1, newdata), bag_newdata) %>>%
              `>`(0.5) %>>% as.numeric)
@@ -131,8 +130,7 @@ cvIndex_f <- function(n, fold) {
 #'  It can be specified with \code{lambdaCriterion = "BIC"} or \code{lambdaCriterion = "deviance"}.
 #' @param nfold an integer, the number of fold for cross-validation to choose the optimal \code{lambda} when
 #'  \code{lambdaCriterion = "deviance"}.
-#' @param maxit an integer, the maximum iteration for the EM algorithm. The default is 1000.
-#' @param tolerance Convergence threshold for coordinate descent. The default is 1e-5.
+#' @param maxit an integer, the maximum iteration for the EM algorithm. The default is 500.
 #' @return An object with S3 class "milr".
 #' \itemize{
 #' \item{lambda}{a vector of candidate lambda values.}
@@ -192,7 +190,7 @@ cvIndex_f <- function(n, fold) {
 #' @rdname milr
 #' @export
 milr <- function(y, x, bag, lambda = 0, numLambda = 20L, lambdaCriterion = "BIC", 
-                 nfold = 10L, maxit = 500L, tolerance = 1e-5) {
+                 nfold = 10L, maxit = 500L) {
   # if x is vector, transform it to matrix
   if (is.vector(x))
     x <- matrix(x, ncol = 1)
@@ -208,12 +206,12 @@ milr <- function(y, x, bag, lambda = 0, numLambda = 20L, lambdaCriterion = "BIC"
   
   # input check
   alpha <- 1
-  assert_that(length(unique(y)) == 2, length(y) == nrow(x),
-              all(is.finite(y)), is.numeric(y), all(is.finite(x)), is.numeric(x), 
-              length(lambda) >= 1, all(is.finite(lambda)), is.numeric(lambda), 
-              is.finite(alpha), is.numeric(alpha), is.finite(maxit), is.numeric(maxit), 
-              abs(maxit - floor(maxit)) < 1e-4, nfold < nrow(x),
-              lambdaCriterion %in% c("deviance", "BIC"))
+  stopifnot(length(unique(y)) == 2, length(y) == nrow(x),
+            all(is.finite(y)), is.numeric(y), all(is.finite(x)), is.numeric(x), 
+            length(lambda) >= 1, all(is.finite(lambda)), is.numeric(lambda), 
+            is.finite(alpha), is.numeric(alpha), is.finite(maxit), is.numeric(maxit), 
+            abs(maxit - floor(maxit)) < 1e-4, nfold < nrow(x),
+            lambdaCriterion %in% c("deviance", "BIC"))
   
   if (length(lambda) == 1 && lambda == -1) {
     message("The penalty term is selected automatically with ", numLambda, " candidates.")
@@ -243,7 +241,7 @@ milr <- function(y, x, bag, lambda = 0, numLambda = 20L, lambdaCriterion = "BIC"
       dev <- vector("numeric", length(lambda))
       BIC <- vector("numeric", length(lambda))
       for (i in seq_along(lambda)) {
-        beta_history[, i + 1] <- milr_cpp(y, cbind(1, x), bag, beta_history[, i], lambda[i], tolerance, alpha, maxit)
+        beta_history[, i + 1] <- milr_cpp(y, cbind(1, x), bag, beta_history[, i], lambda[i], alpha, maxit)
         dev[i] <- -2 * getLogLikMilr(beta_history[, i + 1], y, cbind(1, x), bag)
         BIC[i] <- dev[i] + sum(beta_history[, i + 1] != 0) * log(n_bag)
       }
@@ -276,12 +274,12 @@ milr <- function(y, x, bag, lambda = 0, numLambda = 20L, lambdaCriterion = "BIC"
           trainSetIndex <- do.call(c, cvIndex_sample[setdiff(1:nfold, j)])
           cv_betas[[j]][ , i + 1] <- milr_cpp(y[trainSetIndex], cbind(1, x[trainSetIndex, ]), 
                                               bag[trainSetIndex], cv_betas[[j]][ , i], lambda[i], 
-                                              tolerance, alpha, maxit)
+                                              alpha, maxit)
           dev_cv[i, j] <- -2 * getLogLikMilr(cv_betas[[j]][ , i + 1], y[cvIndex_sample[[j]]], 
                                              cbind(1, x[cvIndex_sample[[j]], ]), bag[cvIndex_sample[[j]]])
         }
         # calculate the beta under lambda
-        beta_history[, i + 1] <- milr_cpp(y, cbind(1, x), bag, beta_history[, i], lambda[i], tolerance, alpha, maxit)
+        beta_history[, i + 1] <- milr_cpp(y, cbind(1, x), bag, beta_history[, i], lambda[i], alpha, maxit)
         dev[i] <- -2 * getLogLikMilr(beta_history[, i + 1], y, cbind(1, x), bag)
         BIC[i] <- dev[i] + sum(beta_history[, i + 1] != 0) * log(n_bag)
       }
@@ -292,7 +290,7 @@ milr <- function(y, x, bag, lambda = 0, numLambda = 20L, lambdaCriterion = "BIC"
     message(sprintf("The chosen penalty throuth %s is %.4f.", lambdaCriterion, lambda[locMin]))
     beta <- beta_history[ , locMin + 1]
   } else {
-    beta_history[,2] <- milr_cpp(y, cbind(1, x), bag, init_beta, lambda, tolerance, alpha, maxit)  
+    beta_history[,2] <- milr_cpp(y, cbind(1, x), bag, init_beta, lambda, alpha, maxit)  
 		beta <- beta_history[,2]
     dev <- -2 * getLogLikMilr(beta, y, cbind(1, x), bag)
     BIC <- dev + sum(beta != 0) * log(n_bag)

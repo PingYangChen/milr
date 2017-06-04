@@ -10,8 +10,7 @@ double softmaxlogL(const arma::vec& bag, const arma::mat& X, const arma::vec& Z,
   vec denominator = zeros<vec>(Z.n_elem);
   double tmp;
   
-  for(uword i = 0; i < bag.n_elem; i++)
-  {
+  for(uword i = 0; i < bag.n_elem; i++) {
     tmp = exp(alpha * p_vec[i]);
     p_bag[bag[i] - 1] += p_vec[i] * tmp;
     denominator[bag[i] - 1] += tmp;

@@ -1,10 +1,9 @@
 #include "common.h"
 
-//[[Rcpp::export]]
 arma::vec EM_Y(const arma::field<arma::uvec>& bagField, const arma::vec& p_instance) {
   // p_bag is P(label of bag_i is 1) = 1-prod(1-p_ij)
   vec p_bag = ones<vec>(p_instance.n_elem);
-  for (uword i =0; i < bagField.n_elem; ++i) 
+  for (uword i =0; i < bagField.n_elem; ++i)
     p_bag.elem(bagField(i)).fill(1 - prod(1.0 - p_instance.elem(bagField(i))));
   
   vec q = p_instance;
@@ -17,7 +16,7 @@ arma::vec EM_Y(const arma::field<arma::uvec>& bagField, const arma::vec& p_insta
 
 //[[Rcpp::export]]
 arma::vec milr_cpp(const arma::vec& Z, const arma::mat& X, const arma::vec& bag,
-                   const arma::vec& init_beta, const double& lambda, const double& tolerance, 
+                   const arma::vec& init_beta, const double& lambda, 
                    const double& alpha,  const double& maxit) {
   chk_mat(Z, "Z");
   chk_mat(X, "X");
@@ -40,7 +39,7 @@ arma::vec milr_cpp(const arma::vec& Z, const arma::mat& X, const arma::vec& bag,
   double XWX = W * ((double) n - 1.0);
   vec beta = init_beta, new_beta(p), p_vec(n), q_vec(n), S(p);
   
-  while (eps > tolerance && iter < maxit) {
+  while (eps > 1e-5 && iter < maxit) {
     p_vec = logit(X, beta);
     // To avoid coefficients diverging in order to achieve fitted probabilities of 0
     // or 1, when a probability is within 10^(-5) of 1, we set it to 1. 0 is treated

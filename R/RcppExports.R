@@ -33,12 +33,8 @@ getSoftmaxBag <- function(X, beta, bag, alpha) {
     .Call('milr_getSoftmaxBag', PACKAGE = 'milr', X, beta, bag, alpha)
 }
 
-EM_Y <- function(bagField, p_instance) {
-    .Call('milr_EM_Y', PACKAGE = 'milr', bagField, p_instance)
-}
-
-milr_cpp <- function(Z, X, bag, init_beta, lambda, tolerance, alpha, maxit) {
-    .Call('milr_milr_cpp', PACKAGE = 'milr', Z, X, bag, init_beta, lambda, tolerance, alpha, maxit)
+milr_cpp <- function(Z, X, bag, init_beta, lambda, alpha, maxit) {
+    .Call('milr_milr_cpp', PACKAGE = 'milr', Z, X, bag, init_beta, lambda, alpha, maxit)
 }
 
 softmaxlogL <- function(bag, X, Z, beta, alpha) {

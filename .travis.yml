@@ -1,20 +1,9 @@
-language: R
+language: r
 cache: packages
 sudo: required
 
-r_build_args: --no-build-vignettes --no-manual --no-resave-data
-r_check_args: --no-build-vignettes --no-manual
-
-repos:
-  CRAN: https://cloud.r-project.org
-  ropensci: http://packages.ropensci.org
-
-before_install:
-  - if [ "$TRAVIS_OS_NAME" == "linux" ]; then 
-       export PATH=$HOME/texlive/bin/x86_64-linux:$PATH;
-       tlmgr update --self --all; mktexlsr;
-       tlmgr conf texmf TEXMFHOME $(Rscript -e "cat(file.path(R.home('share'), 'texmf'))");
-    fi
+before_script:
+  - Rscript -e "if (!require('covr')) install.packages('covr')"
 
 matrix:
   include:
@@ -25,21 +14,6 @@ matrix:
     - os: linux
   allow_failures:
     - os: osx
-
-compiler:
-  - gcc
-  - clang
-
-addons:
- apt:
-   sources:
-     - ubuntu-toolchain-r-test
-   packages:
-     - gcc-4.9
-     - g++-4.9
-
-r_github_packages:
-  - jimhester/covr
 
 after_success:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then Rscript -e 'covr::codecov()'; fi

@@ -9,3 +9,8 @@ src/*.o-*
 inst/doc
 *.Rds
 vignettes/*.R
+vignettes/milr-intro_cache
+vignettes/MilData
+vignettes/MIL-Data-2002-Musk-Corel-Trec9.tgz
+vignettes/*.html
+vignettes/*.md

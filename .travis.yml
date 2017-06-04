@@ -1,6 +1,4 @@
 language: R
-cache: packages
-sudo: required
 
 r_build_args: --no-build-vignettes --no-manual --no-resave-data
 r_check_args: --no-build-vignettes --no-manual
@@ -8,6 +6,9 @@ r_check_args: --no-build-vignettes --no-manual
 repos:
   CRAN: https://cloud.r-project.org
   ropensci: http://packages.ropensci.org
+
+before_install:
+  - tlmgr install index
 
 matrix:
   include:

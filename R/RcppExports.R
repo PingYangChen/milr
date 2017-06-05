@@ -8,15 +8,33 @@
 #' @param X A matrix, the design matrix.
 #' @param beta A vector, the coefficients.
 #' @return An vector of the values of logit link.
-#' @examples
-#' logit(matrix(c(1, 0.5, -0.2, 0.3), 2), c(-0.5, -3)) # 0.5249792, 0.2404891
-#' @export
 logit <- function(X, beta) {
     .Call('milr_logit', PACKAGE = 'milr', X, beta)
 }
 
-CLR_lasso <- function(Z, X, ID_dbl, init_beta, lambda, alpha = 1, maxit = 500) {
-    .Call('milr_CLR_lasso', PACKAGE = 'milr', Z, X, ID_dbl, init_beta, lambda, alpha, maxit)
+getLogLikMilr <- function(beta, y, X, bag) {
+    .Call('milr_getLogLikMilr', PACKAGE = 'milr', beta, y, X, bag)
+}
+
+getMilrProb <- function(beta, X, bag) {
+    .Call('milr_getMilrProb', PACKAGE = 'milr', beta, X, bag)
+}
+
+#' Get bag response function via softmax approach
+#'
+#' Get the class of bags via softmax approach.
+#' 
+#' @param X A matrix, the design matrix.
+#' @param beta A vector, the coefficients.
+#' @param bag A vector, the id of bags.
+#' @return A vector. The classes of bags.
+#' @noRd
+getSoftmaxBag <- function(X, beta, bag, alpha) {
+    .Call('milr_getSoftmaxBag', PACKAGE = 'milr', X, beta, bag, alpha)
+}
+
+milr_cpp <- function(Z, X, bag, init_beta, lambda, alpha, maxit) {
+    .Call('milr_milr_cpp', PACKAGE = 'milr', Z, X, bag, init_beta, lambda, alpha, maxit)
 }
 
 softmaxlogL <- function(bag, X, Z, beta, alpha) {

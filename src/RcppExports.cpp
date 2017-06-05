@@ -18,20 +18,61 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// CLR_lasso
-arma::vec CLR_lasso(const arma::vec& Z, const arma::mat& X, const arma::vec& ID_dbl, const arma::vec& init_beta, const double& lambda, double alpha, double maxit);
-RcppExport SEXP milr_CLR_lasso(SEXP ZSEXP, SEXP XSEXP, SEXP ID_dblSEXP, SEXP init_betaSEXP, SEXP lambdaSEXP, SEXP alphaSEXP, SEXP maxitSEXP) {
+// getLogLikMilr
+double getLogLikMilr(const arma::vec& beta, const arma::vec& y, const arma::mat& X, const arma::vec& bag);
+RcppExport SEXP milr_getLogLikMilr(SEXP betaSEXP, SEXP ySEXP, SEXP XSEXP, SEXP bagSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type y(ySEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type bag(bagSEXP);
+    rcpp_result_gen = Rcpp::wrap(getLogLikMilr(beta, y, X, bag));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getMilrProb
+arma::vec getMilrProb(const arma::vec& beta, const arma::mat& X, const arma::vec& bag);
+RcppExport SEXP milr_getMilrProb(SEXP betaSEXP, SEXP XSEXP, SEXP bagSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::vec& >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type bag(bagSEXP);
+    rcpp_result_gen = Rcpp::wrap(getMilrProb(beta, X, bag));
+    return rcpp_result_gen;
+END_RCPP
+}
+// getSoftmaxBag
+Rcpp::IntegerVector getSoftmaxBag(const arma::mat& X, const arma::vec& beta, const arma::vec& bag, const double& alpha);
+RcppExport SEXP milr_getSoftmaxBag(SEXP XSEXP, SEXP betaSEXP, SEXP bagSEXP, SEXP alphaSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type beta(betaSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type bag(bagSEXP);
+    Rcpp::traits::input_parameter< const double& >::type alpha(alphaSEXP);
+    rcpp_result_gen = Rcpp::wrap(getSoftmaxBag(X, beta, bag, alpha));
+    return rcpp_result_gen;
+END_RCPP
+}
+// milr_cpp
+arma::vec milr_cpp(const arma::vec& Z, const arma::mat& X, const arma::vec& bag, const arma::vec& init_beta, const double& lambda, const double& alpha, const double& maxit);
+RcppExport SEXP milr_milr_cpp(SEXP ZSEXP, SEXP XSEXP, SEXP bagSEXP, SEXP init_betaSEXP, SEXP lambdaSEXP, SEXP alphaSEXP, SEXP maxitSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::vec& >::type Z(ZSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type X(XSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type ID_dbl(ID_dblSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type bag(bagSEXP);
     Rcpp::traits::input_parameter< const arma::vec& >::type init_beta(init_betaSEXP);
     Rcpp::traits::input_parameter< const double& >::type lambda(lambdaSEXP);
-    Rcpp::traits::input_parameter< double >::type alpha(alphaSEXP);
-    Rcpp::traits::input_parameter< double >::type maxit(maxitSEXP);
-    rcpp_result_gen = Rcpp::wrap(CLR_lasso(Z, X, ID_dbl, init_beta, lambda, alpha, maxit));
+    Rcpp::traits::input_parameter< const double& >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< const double& >::type maxit(maxitSEXP);
+    rcpp_result_gen = Rcpp::wrap(milr_cpp(Z, X, bag, init_beta, lambda, alpha, maxit));
     return rcpp_result_gen;
 END_RCPP
 }

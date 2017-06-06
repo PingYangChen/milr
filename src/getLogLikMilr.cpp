@@ -1,5 +1,4 @@
 #include "common.h"
-// [[Rcpp::depends(RcppParallel)]]
 #include <RcppParallel.h>
 
 struct Worker_getLogLikMilr : public RcppParallel::Worker {

@@ -1,7 +1,6 @@
 #ifndef common_h
 #define common_h
 
-// [[Rcpp::depends(RcppArmadillo)]]
 #include <RcppArmadillo.h>
 using namespace arma;
 

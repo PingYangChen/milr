@@ -1,7 +1,5 @@
 #include "common.h"
-// [[Rcpp::depends(RcppParallel)]]
 #include <RcppParallel.h>
-
 
 struct Worker_getMilrProb: public RcppParallel::Worker {
   const uvec& bag2;

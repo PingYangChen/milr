@@ -36,7 +36,7 @@ before_install:
 
 script: 
   - |
-    R CMD build .
+    travis_wait 40 R CMD build .
     travis_wait 40 R CMD check --no--vignettes --no-manual --as-cran milr*tar.gz
 
 after_success:

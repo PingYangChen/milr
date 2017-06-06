@@ -49,4 +49,3 @@ softmax_result <- softmax(trainData$Z, trainData$X, trainData$ID, alpha = 3)
  of instances. in Advances in Knowledge Discovery and Data Mining, Springer, 272--281.
 }
 }
-

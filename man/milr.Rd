@@ -90,4 +90,3 @@ summary(milr_result)   # summary milr
 predict(milr_result, testData$X, testData$ID)                    # predicted bag labels
 predict(milr_result, testData$X, testData$ID, type = "instance") # predicted instance labels
 }
-

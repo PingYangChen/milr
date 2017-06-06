@@ -17,4 +17,3 @@ An vector of the values of logit link.
 \description{
 calculate the values of logit link
 }
-

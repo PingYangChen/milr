@@ -17,7 +17,7 @@ Rcpp::IntegerVector getSoftmaxBag(const arma::mat& X, const arma::vec& beta, con
   chk_mat(bag, "bag");
   
   arma::uvec bag2 = arma::conv_to<arma::uvec>::from(bag - 1);
-  arma::uvec uniBag = sort(arma::unique(bag2)), idx;
+  arma::uvec uniBag = arma::sort(arma::unique(bag2)), idx;
   arma::vec p1, tmp;
   double prob = 0.0;
   Rcpp::IntegerVector out(uniBag.n_elem);
@@ -25,8 +25,8 @@ Rcpp::IntegerVector getSoftmaxBag(const arma::mat& X, const arma::vec& beta, con
   for (arma::uword i = 0; i < uniBag.n_elem; ++i) {
     idx = arma::find(bag2 == uniBag(i));
     p1 = logit(X.rows(idx), beta);
-    tmp = exp(p1.elem(arma::find_finite(p1)) * alpha);
-    prob = sum(p1.elem(arma::find_finite(p1)) % tmp) / sum(tmp);
+    tmp = arma::exp(p1.elem(arma::find_finite(p1)) * alpha);
+    prob = arma::sum(p1.elem(arma::find_finite(p1)) % tmp) / sum(tmp);
     out[i] = prob > 0.5 ? 1 : 0;
   }
   return out;

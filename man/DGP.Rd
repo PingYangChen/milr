@@ -24,4 +24,3 @@ Generating the multiple-instance data set.
 data1 <- DGP(50, 3, runif(10, -5, 5))
 data2 <- DGP(50, sample(3:5, 50, TRUE), runif(10, -5, 5))
 }
-

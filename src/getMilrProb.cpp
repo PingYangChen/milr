@@ -15,7 +15,7 @@ struct Worker_getMilrProb: public RcppParallel::Worker {
   void operator()(std::size_t begin, std::size_t end) {
     for (arma::uword i = begin; i < end; ++i) {
       arma::uvec idx = arma::find(bag2 == uniBag(i));
-      prob(i) = 1 - prod(1.0 - logit(X.rows(idx), beta));
+      prob(i) = 1 - arma::prod(1.0 - logit(X.rows(idx), beta));
     }
   }
 };
@@ -27,7 +27,7 @@ arma::vec getMilrProb(const arma::vec& beta, const arma::mat& X, const arma::vec
   chk_mat(bag, "bag");
   
   arma::uvec bag2 = arma::conv_to<arma::uvec>::from(bag - 1);
-  arma::uvec uniBag = sort(arma::unique(bag2)), idx;
+  arma::uvec uniBag = arma::sort(arma::unique(bag2)), idx;
   arma::vec prob(uniBag.n_elem);
   Worker_getMilrProb getMilrProb_worker(bag2, uniBag, X, beta, prob);
   RcppParallel::parallelFor(0, uniBag.n_elem, getMilrProb_worker);

@@ -21,7 +21,7 @@ struct Worker_getLogLikMilr : public RcppParallel::Worker {
     for (arma::uword i = begin; i < end; ++i) {
       arma::uvec idx = arma::find(bag2 == uniBag(i));
       double prob = std::min(1 - 1e-16, std::max(1e-16, 1 - prod(1.0 - logit(X.rows(idx), beta))));
-      logLikMilr += y(idx(0)) * log(prob) + (1 - y(idx(0))) * log(1 - prob);
+      logLikMilr += y(idx(0)) * std::log(prob) + (1 - y(idx(0))) * std::log(1 - prob);
     }
   }
   
@@ -40,7 +40,7 @@ double getLogLikMilr(const arma::vec& beta, const arma::vec& y,
   chk_mat(bag, "bag");
   
   arma::uvec bag2 = arma::conv_to<arma::uvec>::from(bag);
-  arma::uvec uniBag = sort(unique(bag2)), idx;
+  arma::uvec uniBag = arma::sort(arma::unique(bag2)), idx;
   Worker_getLogLikMilr getLogLikMilr_worker(bag2, uniBag, y, X, beta);
   parallelReduce(0, uniBag.n_elem, getLogLikMilr_worker);
   return getLogLikMilr_worker.logLikMilr;

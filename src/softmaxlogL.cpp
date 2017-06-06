@@ -11,12 +11,12 @@ double softmaxlogL(const arma::vec& bag, const arma::mat& X, const arma::vec& Z,
   double tmp;
   
   for (arma::uword i = 0; i < bag.n_elem; i++) {
-    tmp = exp(alpha * p_vec[i]);
+    tmp = std::exp(alpha * p_vec[i]);
     p_bag[bag[i] - 1] += p_vec[i] * tmp;
     denominator[bag[i] - 1] += tmp;
   }
   p_bag /= denominator;
   
-  double sum1 = -sum(Z % log(p_bag) + (1 - Z) % log(1 - p_bag));
+  double sum1 = -arma::sum(Z % arma::log(p_bag) + (1 - Z) % arma::log(1 - p_bag));
   return sum1;
 }

@@ -21,7 +21,7 @@ void chk_mat(const arma::mat& x, const std::string& varName) {
 arma::vec logit(const arma::mat& X, const arma::vec& beta) {
   chk_mat(X, "X");
   chk_mat(beta, "beta");
-  return pow(1.0 + exp(-X * beta), -1.0);
+  return arma::pow(1.0 + arma::exp(-X * beta), -1.0);
 }
 
 // fixed NOTE by the solution on https://github.com/RcppCore/Rcpp/issues/636

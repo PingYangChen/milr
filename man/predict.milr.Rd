@@ -23,4 +23,3 @@ The \code{"instance"} option returns the predicted labels of instances.}
 \description{
 Predict Method for milr Fits
 }
-

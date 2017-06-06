@@ -26,10 +26,10 @@ arma::vec milr_cpp(const arma::vec& Z, const arma::mat& X, const arma::vec& bag,
   arma::uword p = X.n_cols, n = X.n_rows;
   // convert bag to uword vec
   arma::uvec bag2 = arma::conv_to<arma::uvec>::from(bag);
-  arma::uvec uniBag = sort(arma::unique(bag2));
+  arma::uvec uniBag = arma::sort(arma::unique(bag2));
   arma::field<arma::uvec> bagField(uniBag.n_elem);
   for (arma::uword i = 0; i < uniBag.n_elem; ++i)
-    bagField(i) = find(bag2 == uniBag(i));
+    bagField(i) = arma::find(bag2 == uniBag(i));
   
   // use the upper bound 0.25 to approximate W = p(1-p)
   double iter = 1.0, eps = 1.0, W = 0.25;
@@ -44,7 +44,7 @@ arma::vec milr_cpp(const arma::vec& Z, const arma::mat& X, const arma::vec& bag,
     // To avoid coefficients diverging in order to achieve fitted probabilities of 0
     // or 1, when a probability is within 10^(-5) of 1, we set it to 1. 0 is treated
     // similarly.
-    p_vec.elem(find(p_vec < 1e-5)).zeros();
+    p_vec.elem(arma::find(p_vec < 1e-5)).zeros();
     q_vec = EM_Y(bagField, p_vec);
     S = X.t() * (Z % q_vec - p_vec);
     for (arma::uword k = 0; k < p; ++k) {
@@ -52,7 +52,7 @@ arma::vec milr_cpp(const arma::vec& Z, const arma::mat& X, const arma::vec& bag,
       if (k == 0) {
         new_beta[k] = tmp / XWX;
       } else {
-        if(abs(tmp) <= lambda * alpha)
+        if(std::abs(tmp) <= lambda * alpha)
           new_beta[k] = 0.0;
         if(tmp > lambda * alpha)
           new_beta[k] = (tmp - lambda) / (XWX + lambda * (1.0 - alpha));
@@ -61,7 +61,7 @@ arma::vec milr_cpp(const arma::vec& Z, const arma::mat& X, const arma::vec& bag,
       }
     }
     // if the relative difference is less than tol, stop iterating
-    eps = norm(new_beta - beta, 2) / norm(beta, 2);
+    eps = arma::norm(new_beta - beta, 2) / arma::norm(beta, 2);
     beta = new_beta;
     ++iter;
   }

@@ -23,4 +23,5 @@
 #' @importFrom Rcpp cppFunction sourceCpp
 #' @importFrom pipeR %>>%
 #' @importFrom utils globalVariables
+#' @importFrom RcppParallel RcppParallelLibs
 utils::globalVariables(c(".", "%>>%"))

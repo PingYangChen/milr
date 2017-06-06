@@ -32,7 +32,8 @@ Imports:
     pipeR (>= 0.5),
     numDeriv,
     glmnet,
-    Rcpp (>= 0.12.0)
+    Rcpp (>= 0.12.0),
+    RcppParallel
 LinkingTo: Rcpp,
     RcppArmadillo,
     RcppParallel

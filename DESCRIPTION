@@ -39,7 +39,11 @@ LinkingTo: Rcpp,
 Suggests:
     testthat,
     knitr,
-    rmarkdown
+    knitcitations,
+    rmarkdown,
+    data.table,
+    ggplot2,
+    plyr
 LazyData: yes
 SystemRequirements: GNU make
 License: MIT + file LICENSE

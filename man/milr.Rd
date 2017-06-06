@@ -76,4 +76,3 @@ milr_result <- milr(trainData$Z, trainData$X, trainData$ID,
                     lambda = -1, lambdaCriterion = "deviance")
 coef(milr_result)      # coefficients
 }
-

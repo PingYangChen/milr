@@ -32,16 +32,21 @@ Imports:
     pipeR (>= 0.5),
     numDeriv,
     glmnet,
-    Rcpp (>= 0.12.0)
+    Rcpp (>= 0.12.0),
+    RcppParallel
 LinkingTo: Rcpp,
     RcppArmadillo,
     RcppParallel
 Suggests:
     testthat,
     knitr,
-    rmarkdown
+    knitcitations,
+    rmarkdown,
+    data.table,
+    ggplot2,
+    plyr
 LazyData: yes
 SystemRequirements: GNU make
 License: MIT + file LICENSE
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1
 VignetteBuilder: knitr

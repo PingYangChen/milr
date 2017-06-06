@@ -22,4 +22,3 @@ estimation and variable selection.
  and Hsia, C.-C. (2016). Multiple-Instance Logistic Regression with LASSO Penalty. arXiv:1607.03615 [stat.ML].
 }
 }
-

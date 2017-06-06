@@ -1,9 +1,12 @@
 #include "common.h"
 #include <string>
+#include <R.h>
+#include <Rinternals.h>
+#include <R_ext/Rdynload.h>
 
 // function to check whether the input data with correct type
-void chk_mat(const mat& x, const std::string& varName) {
-  if (!is_finite(x))
+void chk_mat(const arma::mat& x, const std::string& varName) {
+  if (!arma::is_finite(x))
     Rcpp::stop(varName + " must be numerical.\n");
 }
 
@@ -18,5 +21,12 @@ void chk_mat(const mat& x, const std::string& varName) {
 arma::vec logit(const arma::mat& X, const arma::vec& beta) {
   chk_mat(X, "X");
   chk_mat(beta, "beta");
-  return pow(1.0 + exp(-X * beta), -1.0);
+  return arma::pow(1.0 + arma::exp(-X * beta), -1.0);
+}
+
+// fixed NOTE by the solution on https://github.com/RcppCore/Rcpp/issues/636
+// RegisteringDynamic Symbols
+void R_init_RcppBlaze(DllInfo* info) {
+  R_registerRoutines(info, NULL, NULL, NULL, NULL);
+  R_useDynamicSymbols(info, TRUE);
 }

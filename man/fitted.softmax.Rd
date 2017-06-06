@@ -17,4 +17,3 @@ The \code{"instance"} option returns the fitted labels of instances.}
 \description{
 Fitted Response of softmax Fits
 }
-

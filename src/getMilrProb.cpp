@@ -1,22 +1,21 @@
 #include "common.h"
-// [[Rcpp::depends(RcppParallel)]]
 #include <RcppParallel.h>
 
-
 struct Worker_getMilrProb: public RcppParallel::Worker {
-  const uvec& bag2;
-  const uvec& uniBag;
-  const mat& X;
-  const vec& beta;
-  vec& prob;
+  const arma::uvec& bag2;
+  const arma::uvec& uniBag;
+  const arma::mat& X;
+  const arma::vec& beta;
+  arma::vec& prob;
 
-  Worker_getMilrProb(const uvec& bag2, const uvec& uniBag, const mat& X, const vec& beta, vec& prob):
+  Worker_getMilrProb(const arma::uvec& bag2, const arma::uvec& uniBag, 
+                     const arma::mat& X, const arma::vec& beta, arma::vec& prob):
     bag2(bag2), uniBag(uniBag), X(X), beta(beta), prob(prob) {}
 
   void operator()(std::size_t begin, std::size_t end) {
-    for (uword i = begin; i < end; ++i) {
-      uvec idx = find(bag2 == uniBag(i));
-      prob(i) = 1 - prod(1.0 - logit(X.rows(idx), beta));
+    for (arma::uword i = begin; i < end; ++i) {
+      arma::uvec idx = arma::find(bag2 == uniBag(i));
+      prob(i) = 1 - arma::prod(1.0 - logit(X.rows(idx), beta));
     }
   }
 };
@@ -27,9 +26,9 @@ arma::vec getMilrProb(const arma::vec& beta, const arma::mat& X, const arma::vec
   chk_mat(X, "X");
   chk_mat(bag, "bag");
   
-  uvec bag2 = conv_to<uvec>::from(bag - 1);
-  uvec uniBag = sort(unique(bag2)), idx;
-  vec prob(uniBag.n_elem);
+  arma::uvec bag2 = arma::conv_to<arma::uvec>::from(bag - 1);
+  arma::uvec uniBag = arma::sort(arma::unique(bag2)), idx;
+  arma::vec prob(uniBag.n_elem);
   Worker_getMilrProb getMilrProb_worker(bag2, uniBag, X, beta, prob);
   RcppParallel::parallelFor(0, uniBag.n_elem, getMilrProb_worker);
   return prob;

@@ -1,6 +1,8 @@
 language: R
 cache: packages
+latex: true
      
+warnings_are_errors: false
 r_build_args: --no-build-vignettes --no-manual --no-resave-data
 r_check_args: --no-build-vignettes --no-manual --as-cran
 
@@ -31,6 +33,11 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo update-alternatives --install /usr/bin/gfortran gfortran /usr/bin/gfortran-6 100; fi
   - g++ --version
   - gfortran --version
+
+script: 
+  - |
+    R CMD build .
+    travis_wait 40 R CMD check --no--vignettes --no-manual --as-cran milr*tar.gz
 
 after_success:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then Rscript -e 'covr::codecov()'; fi

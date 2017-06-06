@@ -2,14 +2,15 @@
 #include <RcppParallel.h>
 
 struct Worker_getLogLikMilr : public RcppParallel::Worker {
-  const uvec& bag2;
-  const uvec& uniBag;
-  const vec& y;
-  const mat& X;
-  const vec& beta;
+  const arma::uvec& bag2;
+  const arma::uvec& uniBag;
+  const arma::vec& y;
+  const arma::mat& X;
+  const arma::vec& beta;
   double logLikMilr;
   
-  Worker_getLogLikMilr(const uvec& bag2, const uvec& uniBag, const vec& y, const mat& X, const vec& beta)
+  Worker_getLogLikMilr(const arma::uvec& bag2, const arma::uvec& uniBag, const arma::vec& y, 
+                       const arma::mat& X, const arma::vec& beta)
     : bag2(bag2), uniBag(uniBag), y(y), X(X), beta(beta), logLikMilr(0) {}
   
   Worker_getLogLikMilr(const Worker_getLogLikMilr& getLogLikMilr_worker, RcppParallel::Split)
@@ -17,8 +18,8 @@ struct Worker_getLogLikMilr : public RcppParallel::Worker {
     X(getLogLikMilr_worker.X),  beta(getLogLikMilr_worker.beta), logLikMilr(0) {}
   
   void operator()(std::size_t begin, std::size_t end) {
-    for (uword i = begin; i < end; ++i) {
-      uvec idx = find(bag2 == uniBag(i));
+    for (arma::uword i = begin; i < end; ++i) {
+      arma::uvec idx = arma::find(bag2 == uniBag(i));
       double prob = std::min(1 - 1e-16, std::max(1e-16, 1 - prod(1.0 - logit(X.rows(idx), beta))));
       logLikMilr += y(idx(0)) * log(prob) + (1 - y(idx(0))) * log(1 - prob);
     }
@@ -38,8 +39,8 @@ double getLogLikMilr(const arma::vec& beta, const arma::vec& y,
   chk_mat(X, "X");
   chk_mat(bag, "bag");
   
-  uvec bag2 = conv_to<uvec>::from(bag);
-  uvec uniBag = sort(unique(bag2)), idx;
+  arma::uvec bag2 = arma::conv_to<arma::uvec>::from(bag);
+  arma::uvec uniBag = sort(unique(bag2)), idx;
   Worker_getLogLikMilr getLogLikMilr_worker(bag2, uniBag, y, X, beta);
   parallelReduce(0, uniBag.n_elem, getLogLikMilr_worker);
   return getLogLikMilr_worker.logLikMilr;

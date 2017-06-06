@@ -5,7 +5,7 @@
 #include <R_ext/Rdynload.h>
 
 // function to check whether the input data with correct type
-void chk_mat(const mat& x, const std::string& varName) {
+void chk_mat(const arma::mat& x, const std::string& varName) {
   if (!is_finite(x))
     Rcpp::stop(varName + " must be numerical.\n");
 }

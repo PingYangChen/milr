@@ -1,10 +1,8 @@
 language: R
 cache: packages
      
- env:
-   global:
-     - R_BUILD_ARGS="--no-build-vignettes --no-manual"
-     - R_CHECK_ARGS="--no-build-vignettes --no-manual --as-cran"
+r_build_args: --no-build-vignettes --no-manual --no-resave-data
+r_check_args: --no-build-vignettes --no-manual --as-cran
 
 before_script:
   - Rscript -e "if (!require('covr')) install.packages('covr')"

@@ -591,7 +591,7 @@ fewer iterations to achieve the best fit.
 
 ```{r CPUTIME,message=FALSE,results="hide"}
 # set the iterations from 5000 to 25000
-itSet <- seq(5000, 25000, 2000)
+itSet <- seq(5000, 20000, 3000)
 outDT <- data.table(iteration = rep(itSet, each = 3), 
                     method = rep(c("s_0", "s_3", "milr"), length(itSet)), 
                     time = NA_real_, acc = NA_real_)
@@ -676,7 +676,7 @@ respectively.
 set.seed(99)
 predY <- matrix(0, length(Y), 4L) %>>%
   `colnames<-`(c("s0","s3","milr","milr_sv"))
-folds <- 10
+folds <- 5
 foldBag <- rep(1:folds, floor(length(Y) / folds) + 1, 
                length = length(Y)) %>>% sample(length(.))
 foldIns <- rep(foldBag, table(MUSK1$bag))

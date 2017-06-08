@@ -5,8 +5,8 @@ Version: 0.3.0
 Date: 2017-06-05
 Description: The multiple instance data set consists of many independent
     subjects (called bags) and each subject is composed of several components
-    (called instances). The outcomes of such data set are binary or multinomial,
-    and, we can only observe the subject-level outcomes. For example, in manufactory
+    (called instances). The outcomes of such data set are binary or categorical responses,
+    and, we can only observe the subject-level outcomes. For example, in manufacturing
     processes, a subject is labeled as "defective" if at least one of its own
     components is defective, and otherwise, is labeled as "non-defective". The
     'milr' package focuses on the predictive model for the multiple instance

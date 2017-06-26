@@ -91,3 +91,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+
+static const R_CallMethodDef CallEntries[] = {
+    {"milr_logit", (DL_FUNC) &milr_logit, 2},
+    {"milr_getLogLikMilr", (DL_FUNC) &milr_getLogLikMilr, 4},
+    {"milr_getMilrProb", (DL_FUNC) &milr_getMilrProb, 3},
+    {"milr_getSoftmaxBag", (DL_FUNC) &milr_getSoftmaxBag, 4},
+    {"milr_milr_cpp", (DL_FUNC) &milr_milr_cpp, 7},
+    {"milr_softmaxlogL", (DL_FUNC) &milr_softmaxlogL, 5},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_milr(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
+}

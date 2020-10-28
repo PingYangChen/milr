@@ -537,10 +537,10 @@ filePath <- file.path(getwd(), dataName)
 #  download.file(paste0(dataUrl, dataName), filePath)
 # Extract MUSK1 data file (not run)
 # if (!dir.exists("MilData"))
-#   untar(filePath, files = "MilData/Musk/musk1norm.svm")
+#   untar(filePath, files = "musk1norm.svm")
 # Read and Preprocess MUSK1
 library(data.table)
-MUSK1 <- fread("MilData/Musk/musk1norm.svm", header = FALSE) %>>%
+MUSK1 <- fread("musk1norm.svm", header = FALSE) %>>%
   `[`(j = lapply(.SD, function(x) gsub("\\d+:(.*)", "\\1", x))) %>>%
   `[`(j = c("bag", "label") := tstrsplit(V1, ":")) %>>%
   `[`(j = V1 := NULL) %>>% `[`(j = lapply(.SD, as.numeric)) %>>%

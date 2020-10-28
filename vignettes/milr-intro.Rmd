@@ -373,7 +373,7 @@ real examples.
 ## Estimation and variable selection
 
 We demonstrate how to apply the `milr` function for model
-estimation and variable selection. We simulate data with \(n=40\) bags,
+estimation and variable selection. We simulate data with \(n=30\) bags,
 each containing \(m=3\) instances and regression coefficients
 \(\beta = (-2, -1, 1, 2, 0.5, 0, 0, 0, 0, 0)\). Specifically, the first
 four covariates are important.
@@ -383,10 +383,10 @@ library(milr)
 library(pipeR)
 set.seed(99)
 # set the size of dataset
-numOfBag <- 40
+numOfBag <- 30
 numOfInstsInBag <- 3
 # set true coefficients: beta_0, beta_1, beta_2, beta_3
-trueCoefs <- c(-2, -2, -1, 1, 2, 0.5, 0, 0, 0, 0, 0)
+trueCoefs <- c(-2, -1, 2, 0.5)
 trainData <- DGP(numOfBag, numOfInstsInBag, trueCoefs)
 colnames(trainData$X) <- paste0("X", 1:ncol(trainData$X))
 (instanceResponse <- as.numeric(with(trainData, tapply(Z, ID, any))))
@@ -401,7 +401,7 @@ coefficients are returned by the function `coef`.
 
 ```{r EST2}
 # fit milr model
-milrFit_EST <- milr(trainData$Z, trainData$X, trainData$ID, lambda = 0)
+milrFit_EST <- milr(trainData$Z, trainData$X, trainData$ID, lambda = 1e-7)
 # call the Wald test result
 summary(milrFit_EST)
 # call the regression coefficients
@@ -432,7 +432,7 @@ table(DATA = instanceResponseTest, PRED = pred_EST)
 ```
 
 Next, the $n < p$ cases are considered. We generate a data set with
-\(n=50\) bags, each with 3 instances and \(p=100\) covariates.  Among
+\(n=30\) bags, each with 3 instances and \(p=45\) covariates.  Among
 these covariates, only the first five of them, \(X_1,\ldots,X_5\), are
 active and their nonzero coefficients are the same as the previous
 example. First, we manually specify 20 \(\lambda\) values manually
@@ -443,7 +443,7 @@ BIC.  For this dataset, the chosen model is a constant model.
 ```{r VS, message=FALSE}
 set.seed(99)
 # Set the new coefficienct vector (large p)
-trueCoefs_Lp <- c(-2, -2, -1, 1, 2, 0.5, rep(0, 95))
+trueCoefs_Lp <- c(-2, -2, -1, 1, 2, 0.5, rep(0, 45))
 # Generate the new training data with large p
 trainData_Lp <- DGP(numOfBag, numOfInstsInBag, trueCoefs_Lp)
 colnames(trainData_Lp$X) <- paste0("X", 1:ncol(trainData_Lp$X))
@@ -596,7 +596,7 @@ milrREFit <- milr(MUSK1$label, X[ , sv_ind], MUSK1$bag,
 table(DATA = Y, FIT_MILR = fitted(milrREFit, type = "bag"))
 ```
 
-Following the discussion above, we use 3-fold cross validation and
+We use 3-fold cross validation and
 compare the prediction accuracy among four MIL models which are
 \(s(0)\), \(s(3)\), the MILR model with all covariates, and, the MILR
 model fitted by the selected covariates via MILR-LASSO. Then, we show their 

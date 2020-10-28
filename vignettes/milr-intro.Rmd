@@ -48,7 +48,6 @@ vignette: >
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(cache = 2, cache.lazy = FALSE, tidy = FALSE, warning = FALSE)
-library(knitcitations)
 ```
 
 # Introduction
@@ -635,7 +634,7 @@ library(ggplot2)
 ggplot(outDT2, aes(iteration, value, colour = method)) + 
   labs(x = "Iterations (x 1000)", title = "The CPU Time and Fitted Accuracy") +
   geom_point(cex = 2) + geom_line() + 
-  facet_wrap(~variable, scales = "free", switch = 'y') +
+  facet_wrap(~variable, scales = "free", strip.position = 'left') +
   theme(axis.title.y = element_blank(),
         strip.background = element_rect(fill = "transparent"),
         strip.placement = "outside", 

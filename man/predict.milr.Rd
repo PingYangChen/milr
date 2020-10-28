@@ -4,8 +4,7 @@
 \alias{predict.milr}
 \title{Predict Method for milr Fits}
 \usage{
-\method{predict}{milr}(object, newdata = NULL, bag_newdata = NULL,
-  type = "bag", ...)
+\method{predict}{milr}(object, newdata = NULL, bag_newdata = NULL, type = "bag", ...)
 }
 \arguments{
 \item{object}{A fitted obejct of class inheriting from \code{"milr"}.}

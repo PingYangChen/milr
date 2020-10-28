@@ -4,8 +4,7 @@
 \alias{predict.softmax}
 \title{Predict Method for softmax Fits}
 \usage{
-\method{predict}{softmax}(object, newdata = NULL, bag_newdata = NULL,
-  type = "bag", ...)
+\method{predict}{softmax}(object, newdata = NULL, bag_newdata = NULL, type = "bag", ...)
 }
 \arguments{
 \item{object}{A fitted obejct of class inheriting from \code{"softmax"}.}

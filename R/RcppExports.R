@@ -9,15 +9,15 @@
 #' @param beta A vector, the coefficients.
 #' @return An vector of the values of logit link.
 logit <- function(X, beta) {
-    .Call('milr_logit', PACKAGE = 'milr', X, beta)
+    .Call('_milr_logit', PACKAGE = 'milr', X, beta)
 }
 
 getLogLikMilr <- function(beta, y, X, bag) {
-    .Call('milr_getLogLikMilr', PACKAGE = 'milr', beta, y, X, bag)
+    .Call('_milr_getLogLikMilr', PACKAGE = 'milr', beta, y, X, bag)
 }
 
 getMilrProb <- function(beta, X, bag) {
-    .Call('milr_getMilrProb', PACKAGE = 'milr', beta, X, bag)
+    .Call('_milr_getMilrProb', PACKAGE = 'milr', beta, X, bag)
 }
 
 #' Get bag response function via softmax approach
@@ -30,14 +30,14 @@ getMilrProb <- function(beta, X, bag) {
 #' @return A vector. The classes of bags.
 #' @noRd
 getSoftmaxBag <- function(X, beta, bag, alpha) {
-    .Call('milr_getSoftmaxBag', PACKAGE = 'milr', X, beta, bag, alpha)
+    .Call('_milr_getSoftmaxBag', PACKAGE = 'milr', X, beta, bag, alpha)
 }
 
 milr_cpp <- function(Z, X, bag, init_beta, lambda, alpha, maxit) {
-    .Call('milr_milr_cpp', PACKAGE = 'milr', Z, X, bag, init_beta, lambda, alpha, maxit)
+    .Call('_milr_milr_cpp', PACKAGE = 'milr', Z, X, bag, init_beta, lambda, alpha, maxit)
 }
 
 softmaxlogL <- function(bag, X, Z, beta, alpha) {
-    .Call('milr_softmaxlogL', PACKAGE = 'milr', bag, X, Z, beta, alpha)
+    .Call('_milr_softmaxlogL', PACKAGE = 'milr', bag, X, Z, beta, alpha)
 }
 

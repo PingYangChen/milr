@@ -2,6 +2,7 @@
 % Please edit documentation in R/milr-package.R
 \docType{package}
 \name{milr-package}
+\alias{-package}
 \alias{milr-package}
 \title{The milr package: multiple-instance logistic regression with lasso penalty}
 \description{

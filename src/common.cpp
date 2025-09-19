@@ -6,7 +6,8 @@
 
 // function to check whether the input data with correct type
 void chk_mat(const arma::mat& x, const std::string& varName) {
-  if (!arma::is_finite(x))
+  //if (!arma::is_finite(x))
+  if (!x.is_finite())
     Rcpp::stop(varName + " must be numerical.\n");
 }
 

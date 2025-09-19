@@ -132,7 +132,7 @@ cvIndex_f <- function(n, fold) {
 #'  \code{lambdaCriterion = "deviance"}.
 #' @param maxit an integer, the maximum iteration for the EM algorithm. The default is 500.
 #' @return An object with S3 class "milr".
-#' \itemize{
+#' \describe{
 #' \item{lambda}{a vector of candidate lambda values.}
 #' \item{cv}{a vector of predictive deviance via \code{nfold}-fold cross validation
 #'  when \code{lambdaCriterion = "deviance"}.}

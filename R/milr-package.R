@@ -24,4 +24,7 @@
 #' @importFrom pipeR %>>%
 #' @importFrom utils globalVariables
 #' @importFrom RcppParallel RcppParallelLibs
+# @aliases milr-package milr
+# @keywords internal
+"_PACKAGE"
 utils::globalVariables(c(".", "%>>%"))

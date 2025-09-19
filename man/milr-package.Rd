@@ -2,7 +2,6 @@
 % Please edit documentation in R/milr-package.R
 \docType{package}
 \name{milr-package}
-\alias{-package}
 \alias{milr-package}
 \title{The milr package: multiple-instance logistic regression with lasso penalty}
 \description{
@@ -22,4 +21,23 @@ estimation and variable selection.
   \item Chen, R.-B., Cheng, K.-H., Chang, S.-M., Jeng, S.-L., Chen, P.-Y., Yang, C.-H., 
  and Hsia, C.-C. (2016). Multiple-Instance Logistic Regression with LASSO Penalty. arXiv:1607.03615 [stat.ML].
 }
+}
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/PingYangChen/milr}
+  \item Report bugs at \url{https://github.com/PingYangChen/milr/issues}
+}
+
+}
+\author{
+\strong{Maintainer}: Ping-Yang Chen \email{pychen.ping@gmail.com}
+
+Authors:
+\itemize{
+  \item ChingChuan Chen \email{celestial0230@stat.sinica.edu.tw}
+  \item Chun-Hao Yang \email{chunhaoyang@ufl.edu}
+  \item Sheng-Mao Chang \email{smchang@mail.ncku.edu.tw}
+}
+
 }
